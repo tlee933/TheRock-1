@@ -181,6 +181,7 @@ macro(add_python_variant minor_version configure_flags)
         "CFLAGS=${CUSTOM_C_FLAGS}"
         "CXXFLAGS=${CUSTOM_CXX_FLAGS}"
         "LDFLAGS=${LDFLAGS}"
+        "MAKEINFO=true"
       --
       # The actual configure command.
       ${CMAKE_CURRENT_SOURCE_DIR}/source/configure
@@ -223,16 +224,19 @@ macro(add_python_variant minor_version configure_flags)
         --without-libunwind-ia64
         --without-xxhash
         ${configure_flags}
+        # Pass MAKEINFO=true as argument (not just env var) to ensure it's used
+        "MAKEINFO=true"
 
     # Build
+    # MAKEINFO=true must be passed as make argument to override Makefile value
     COMMAND
       ${CMAKE_COMMAND} -E chdir "${GDB_BUILD_DIR_VER}"
-      ${MAKE_EXECUTABLE} -j "${PAR_JOBS}" V=1
+      ${MAKE_EXECUTABLE} -j "${PAR_JOBS}" V=1 "MAKEINFO=true"
 
-    # Install gdb and gdb docs.
+    # Install gdb (skip docs - texi2dvi/makeinfo not available on this system).
     COMMAND
       ${CMAKE_COMMAND} -E chdir "${GDB_BUILD_DIR_VER}"
-      ${MAKE_EXECUTABLE} -C gdb install install-pdf install-html
+      ${MAKE_EXECUTABLE} -C gdb install "MAKEINFO=true"
     # Install binutils for coremerge and coremerge manpage.
     COMMAND
       ${CMAKE_COMMAND} -E chdir "${GDB_BUILD_DIR_VER}"

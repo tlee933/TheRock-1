@@ -79,6 +79,8 @@ add_custom_target(
       # making it to the shared library's RUNPATH.
       "LDFLAGS=${CMAKE_SHARED_LINKER_FLAGS} -Wl,-rpath=\\'\\$$\\$$ORIGIN\\' -Wl,--version-script=${CMAKE_CURRENT_SOURCE_DIR}/version.lds"
       "CPPFLAGS=${EXTRA_CPPFLAGS}"
+      "CFLAGS=-O2 -fomit-frame-pointer -std=gnu17"
+      "CC=gcc"
       --
     "${SOURCE_DIR}/configure"
       --prefix "${CMAKE_INSTALL_PREFIX}"

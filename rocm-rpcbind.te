@@ -1,0 +1,28 @@
+
+module rocm-rpcbind 1.0;
+
+require {
+	type unconfined_t;
+	type var_lib_t;
+	type unreserved_port_t;
+	type var_t;
+	type virtqemud_t;
+	type rpcbind_t;
+	class dir { add_name create };
+	class process execheap;
+	class udp_socket name_bind;
+}
+
+#============= rpcbind_t ==============
+
+#!!!! This avc is allowed in the current policy
+allow rpcbind_t unreserved_port_t:udp_socket name_bind;
+
+#============= unconfined_t ==============
+
+#!!!! This avc can be allowed using the boolean 'selinuxuser_execheap'
+allow unconfined_t self:process execheap;
+
+#============= virtqemud_t ==============
+allow virtqemud_t var_lib_t:dir create;
+allow virtqemud_t var_t:dir { add_name create };

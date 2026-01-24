@@ -1,0 +1,6 @@
+Message 1: Hello, hashcat!
+Message 2: Hello, hashcat!
+Message 3: Hello, hashcat!
+Message 4: Hello, hashcat!
+Message 5: Hello, hashcat!
+Message 6: Hello, hashcat!

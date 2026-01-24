@@ -43,6 +43,7 @@ else()
       set(RUNTIMES_amdgcn-amd-amdhsa_LLVM_ENABLE_RUNTIMES "openmp")
       set(RUNTIMES_amdgcn-amd-amdhsa_LLVM_ENABLE_PER_TARGET_RUNTIME_DIR ON)
       set(FLANG_RUNTIME_F128_MATH_LIB "libquadmath")
+      set(FLANG_GCC_RESOURCE_DIR "/usr/lib/gcc/x86_64-redhat-linux/15" CACHE STRING "GCC resource dir for quadmath.h")
       set(LIBOMPTARGET_BUILD_DEVICE_FORTRT ON)
       #TODO: Enable when HWLOC dependency is figured out
       #set(LIBOMP_USE_HWLOC ON)

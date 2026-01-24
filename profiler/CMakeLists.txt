@@ -47,18 +47,24 @@ if(THEROCK_ENABLE_ROCPROFV3)
   ##############################################################################
   # Detect available Default Python3 version on the system or
   # use explicitly provided Python3 versions
-  therock_detect_python_versions(_detected_python_executables _detected_python_versions)
-
-  # Use detected versions or fall back to default if none found
-  if(NOT _detected_python_versions)
-    message(FATAL_ERROR "No Python versions detected for rocprofiler-sdk")
-    set(_detected_python_versions_str "")
+  # Python bindings are optional - skip if Python or dev headers not available
+  set(_detected_python_versions_str "")
+  if(NOT THEROCK_SKIP_PYTHON_BINDINGS)
+    # Try to detect Python versions, but don't fatal if not found
+    find_package(Python3 QUIET COMPONENTS Interpreter Development.Module)
+    if(Python3_FOUND AND Python3_INCLUDE_DIRS)
+      therock_detect_python_versions(_detected_python_executables _detected_python_versions)
+      if(_detected_python_versions)
+        message(STATUS "Detected Python versions for rocprofiler-sdk python bindings: ${_detected_python_versions}")
+        message(STATUS "Python executables: ${_detected_python_executables}")
+        # Join all detected Python versions into a single string separated by semicolons.
+        list(JOIN _detected_python_versions "\;" _detected_python_versions_str)
+      endif()
+    else()
+      message(WARNING "Python3 development headers not found - rocprofiler-sdk python bindings will be disabled")
+    endif()
   else()
-    message(STATUS "Detected Python versions for rocprofiler-sdk python bindings: ${_detected_python_versions}")
-    message(STATUS "Python executables: ${_detected_python_executables}")
-    # Join all detected Python versions into a single string separated by semicolons.
-    # This is a workaround because therock_cmake_subproject_declare does not support passing lists directly.
-    list(JOIN _detected_python_versions "\;" _detected_python_versions_str)
+    message(STATUS "Python bindings disabled via THEROCK_SKIP_PYTHON_BINDINGS")
   endif()
 
   therock_cmake_subproject_declare(rocprofiler-sdk
@@ -213,7 +219,10 @@ if(THEROCK_ENABLE_ROCPROFV3)
       BACKGROUND_BUILD
       CMAKE_ARGS
         -DHIP_PLATFORM=amd
-        -DROCPROFSYS_BUILD_ELFUTILS=ON
+        -DROCPROFSYS_BUILD_ELFUTILS=OFF
+        -DDYNINST_BUILD_ELFUTILS=OFF
+        -DROCM_USE_SYSTEM_ELFUTILS=ON
+        -DROCPROFSYS_USE_PAPI=OFF
         -DROCPROFSYS_BUILD_TBB=ON
         -DROCPROFSYS_BUILD_LIBIBERTY=ON
         -DROCPROFSYS_BUILD_BOOST=ON
