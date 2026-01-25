@@ -271,10 +271,10 @@ macro(add_python_variant minor_version configure_flags libpython_dir)
     COMMAND
       ${CMAKE_COMMAND} -E chdir "${ROCGDB_BUILD_DIR}"
       ${MAKE_EXECUTABLE} -s -C gdb install
-    # Install gdb docs.
-    COMMAND
-      ${CMAKE_COMMAND} -E chdir "${ROCGDB_BUILD_DIR}"
-      ${MAKE_EXECUTABLE} -s -C gdb install-pdf install-html
+    # Skip gdb docs (PDF/HTML) - requires full TeX installation which is not available on bootc systems
+    # COMMAND
+    #   ${CMAKE_COMMAND} -E chdir "${ROCGDB_BUILD_DIR}"
+    #   ${MAKE_EXECUTABLE} -s -C gdb install-pdf install-html
     # Install binutils for coremerge and coremerge manpage.
     COMMAND
       ${CMAKE_COMMAND} -E chdir "${ROCGDB_BUILD_DIR}"
