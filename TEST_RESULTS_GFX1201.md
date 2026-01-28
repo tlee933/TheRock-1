@@ -1,5 +1,13 @@
 # 🚀 ROCm 7.12 Test Results
 
+![ROCm](https://img.shields.io/badge/ROCm-7.12-red?logo=amd&logoColor=white)
+![GPU](https://img.shields.io/badge/GPU-gfx1201_(RDNA4)-orange)
+![Fedora](https://img.shields.io/badge/Fedora-43_Atomic-blue?logo=fedora&logoColor=white)
+![GCC](https://img.shields.io/badge/GCC-15.2-green?logo=gnu&logoColor=white)
+![Python](https://img.shields.io/badge/Python-3.14-yellow?logo=python&logoColor=white)
+![Status](https://img.shields.io/badge/Status-✅_Production_Ready-brightgreen)
+![LLM](https://img.shields.io/badge/LLM-123_t/s-purple?logo=openai&logoColor=white)
+
 ## AMD Radeon AI PRO R9700 (gfx1201) on Fedora Atomic
 
 > **Status: ✅ ALL TESTS PASSING**
