@@ -1,0 +1,106 @@
+From a7cff007f0a6064a71cb5b6c92b6a3c4c89625c5 Mon Sep 17 00:00:00 2001
+From: therockbot <therockbot@amd.com>
+Date: Wed, 28 Jan 2026 04:59:42 -0700
+Subject: [PATCH] rocm-libraries: Fix GCC 15 cstdint compatibility in float
+ type headers
+
+GCC 15's libstdc++ <cstdint> header requires C integer types to already
+be defined in the global namespace before inclusion. When compiling with
+Clang using GCC 15's headers (common on Fedora 43+), including <cstdint>
+before <stdint.h> causes errors like:
+
+  error: no member named 'intptr_t' in the global namespace
+  error: no member named 'uint_fast8_t' in the global namespace
+
+Fix by including <stdint.h> before <cstdint> in the C++/HIP code paths
+of the following headers:
+  - rocblas: rocblas_bfloat16.h, rocblas_xfloat32.h
+  - rocsparse: rocsparse_bfloat16.h
+  - hipblaslt: hipblaslt_xfloat32.h
+  - tensile: tensile_bfloat16.h (shared and hipblaslt copies)
+
+See-also: https://gcc.gnu.org/gcc-15/porting_to.html
+---
+ .../hipblaslt/library/include/hipblaslt/hipblaslt_xfloat32.h     | 1 +
+ projects/hipblaslt/tensilelite/Tensile/Source/tensile_bfloat16.h | 1 +
+ projects/rocblas/library/include/internal/rocblas_bfloat16.h     | 1 +
+ projects/rocblas/library/include/internal/rocblas_xfloat32.h     | 1 +
+ projects/rocsparse/library/include/rocsparse_bfloat16.h          | 1 +
+ shared/tensile/Tensile/Source/tensile_bfloat16.h                 | 1 +
+ 6 files changed, 6 insertions(+)
+
+diff --git a/projects/hipblaslt/library/include/hipblaslt/hipblaslt_xfloat32.h b/projects/hipblaslt/library/include/hipblaslt/hipblaslt_xfloat32.h
+index a71bd2d94d..a8d570f499 100644
+--- a/projects/hipblaslt/library/include/hipblaslt/hipblaslt_xfloat32.h
++++ b/projects/hipblaslt/library/include/hipblaslt/hipblaslt_xfloat32.h
+@@ -43,6 +43,7 @@ typedef struct
+ 
+ #else // __cplusplus < 201103L || (!defined(__HCC__) && !defined(__HIPCC__))
+ 
++#include <stdint.h> // GCC 15: must precede <cstdint> to populate global namespace
+ #include <cmath>
+ #include <cstddef>
+ #include <cstdint>
+diff --git a/projects/hipblaslt/tensilelite/Tensile/Source/tensile_bfloat16.h b/projects/hipblaslt/tensilelite/Tensile/Source/tensile_bfloat16.h
+index b059db2109..c4a4d15e6e 100644
+--- a/projects/hipblaslt/tensilelite/Tensile/Source/tensile_bfloat16.h
++++ b/projects/hipblaslt/tensilelite/Tensile/Source/tensile_bfloat16.h
+@@ -44,6 +44,7 @@ typedef struct
+ 
+ #else // __cplusplus < 201103L || !defined(__HIPCC__)
+ 
++#include <stdint.h> // GCC 15: must precede <cstdint> to populate global namespace
+ #include <cmath>
+ #include <cstddef>
+ #include <cstdint>
+diff --git a/projects/rocblas/library/include/internal/rocblas_bfloat16.h b/projects/rocblas/library/include/internal/rocblas_bfloat16.h
+index 1c49dc8b04..63ffdee08d 100644
+--- a/projects/rocblas/library/include/internal/rocblas_bfloat16.h
++++ b/projects/rocblas/library/include/internal/rocblas_bfloat16.h
+@@ -41,6 +41,7 @@ typedef struct
+ 
+ #else // __cplusplus < 201103L || (!defined(__HCC__) && !defined(__HIPCC__))
+ 
++#include <stdint.h> // GCC 15: must precede <cstdint> to populate global namespace
+ #include <cmath>
+ #include <cstddef>
+ #include <cstdint>
+diff --git a/projects/rocblas/library/include/internal/rocblas_xfloat32.h b/projects/rocblas/library/include/internal/rocblas_xfloat32.h
+index 427bd309a4..08cbf80ea0 100644
+--- a/projects/rocblas/library/include/internal/rocblas_xfloat32.h
++++ b/projects/rocblas/library/include/internal/rocblas_xfloat32.h
+@@ -40,6 +40,7 @@ typedef struct
+ 
+ #else // __cplusplus < 201103L || (!defined(__HCC__) && !defined(__HIPCC__))
+ 
++#include <stdint.h> // GCC 15: must precede <cstdint> to populate global namespace
+ #include <cmath>
+ #include <cstddef>
+ #include <cstdint>
+diff --git a/projects/rocsparse/library/include/rocsparse_bfloat16.h b/projects/rocsparse/library/include/rocsparse_bfloat16.h
+index 489045eccd..fd86a00501 100644
+--- a/projects/rocsparse/library/include/rocsparse_bfloat16.h
++++ b/projects/rocsparse/library/include/rocsparse_bfloat16.h
+@@ -43,6 +43,7 @@ typedef struct
+ 
+ #else // __cplusplus < 201103L || (!defined(__HCC__) && !defined(__HIPCC__))
+ 
++#include <stdint.h> // GCC 15: must precede <cstdint> to populate global namespace
+ #include <cmath>
+ #include <cstddef>
+ #include <cstdint>
+diff --git a/shared/tensile/Tensile/Source/tensile_bfloat16.h b/shared/tensile/Tensile/Source/tensile_bfloat16.h
+index f3bce7028a..4d70a33fb0 100644
+--- a/shared/tensile/Tensile/Source/tensile_bfloat16.h
++++ b/shared/tensile/Tensile/Source/tensile_bfloat16.h
+@@ -44,6 +44,7 @@ typedef struct
+ 
+ #else // __cplusplus < 201103L || !defined(__HIPCC__)
+ 
++#include <stdint.h> // GCC 15: must precede <cstdint> to populate global namespace
+ #include <cmath>
+ #include <cstddef>
+ #include <cstdint>
+-- 
+2.52.0
+
