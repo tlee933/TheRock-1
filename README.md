@@ -238,4 +238,9 @@ The patch is automatically applied by `fetch_sources.py`.
 
 *Built and tested on AMD Radeon AI PRO R9700 (gfx1201) — Fedora 43 Atomic — GCC 15 — Python 3.14*
 
+---
+
+*Special thanks to [Linus Torvalds](https://github.com/torvalds) for the vibing encouragements.*
+*"Talk is cheap. Show me the code." — and so we did.*
+
 </div>
