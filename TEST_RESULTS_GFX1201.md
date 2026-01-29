@@ -62,18 +62,18 @@ error: no member named 'uint_fast8_t' in the global namespace
 The **Radeon AI PRO R9700** punches above its weight class:
 
 ```
-┌────────────────────────────────────────────────────────────────────────────┐
-│                    LLM INFERENCE COMPARISON (llama.cpp)                    │
-├──────────────────────┬─────────┬────────┬──────────────┬──────────────────┤
-│ GPU                  │  VRAM   │ Price  │ Gen (t/s)*   │ Notes            │
-├──────────────────────┼─────────┼────────┼──────────────┼──────────────────┤
-│ RTX 4090             │  24 GB  │ $1,599 │ ~150-190     │ Consumer king    │
-│ RTX 4080 SUPER       │  16 GB  │ $999   │ ~147-150     │ Sweet spot       │
-│ Radeon AI PRO R9700  │  32 GB  │ ~$899  │ ~123         │ ← YOU ARE HERE   │
-│ RTX 4080             │  16 GB  │ $899   │ ~140         │ Previous gen     │
-│ RTX 3090             │  24 GB  │ Legacy │ ~100-120     │ Still capable    │
-└──────────────────────┴─────────┴────────┴──────────────┴──────────────────┘
-                                          * 7B-20B Q4 models, varies by model
+┌──────────────────────────────────────────────────────────────────────────────────┐
+│                       LLM INFERENCE COMPARISON (llama.cpp)                       │
+├──────────────────────┬─────────┬──────────────┬──────────────┬──────────────────┤
+│ GPU                  │  VRAM   │ Street Price │ Gen (t/s)*   │ Notes            │
+├──────────────────────┼─────────┼──────────────┼──────────────┼──────────────────┤
+│ RTX 4090             │  24 GB  │ $1,983+      │ ~150-190     │ Scalped to hell  │
+│ Radeon AI PRO R9700  │  32 GB  │ $1,299       │ ~123         │ ← YOU ARE HERE   │
+│ RTX 4080 SUPER       │  16 GB  │ $950-1,200   │ ~147-150     │ Half the VRAM    │
+│ RTX 3090             │  24 GB  │ $800-1,000   │ ~100-120     │ Used market only │
+└──────────────────────┴─────────┴──────────────┴──────────────┴──────────────────┘
+                              * 7B-20B Q4 models, varies by model
+                              Prices: Jan 2026 street / secondary market
 ```
 
 #### 💪 Where R9700 Wins
@@ -83,8 +83,8 @@ The **Radeon AI PRO R9700** punches above its weight class:
 | **32GB VRAM** | Run 30B+ models fully on GPU (4090 caps at ~24GB) |
 | **Open Source** | Full ROCm stack, no CUDA lock-in |
 | **Pro Features** | ECC memory option, ISV certifications coming |
-| **Price/VRAM** | Best GB/$ ratio for serious LLM work |
-| **Power Efficiency** | 260W TDP vs 450W (RTX 4090) |
+| **Price/VRAM** | $40.59/GB vs $82.63/GB (4090) — half the cost per GB |
+| **Power Efficiency** | 300W TDP vs 450W (RTX 4090) |
 
 #### 📊 Real Numbers (This Build)
 
