@@ -1,0 +1,491 @@
+ninja: Entering directory `/var/mnt/build/TheRock/build'
+[0/2] Re-checking globbed directories...
+[1/233] Building sub-project rocm-cmake (in background)
+[rocm-cmake] [0/2] Re-checking globbed directories...
+[rocm-cmake] [1/1] cd /mnt/build/TheRock/build/base/rocm-cmake/build && /var/home/hashcat/.local/lib/python3.14/site-packages/cmake/data/bin/cmake -E rm -f /mnt/build/TheRock/build/base/rocm-cmake/stamp/stage.stamp
+[rocm-cmake SUCCEEDED in 0 seconds]
+[2/233] Stage installing sub-project therock-libbacktrace
+[3/233] Stage installing sub-project rocm-cmake
+[4/233] Configure sub-project rocprof-trace-decoder (in background)
+[rocprof-trace-decoder configure] -- The C compiler identification is GNU 15.2.1
+[rocprof-trace-decoder configure] -- The CXX compiler identification is GNU 15.2.1
+[rocprof-trace-decoder configure] -- Detecting C compiler ABI info
+[rocprof-trace-decoder configure] -- Detecting C compiler ABI info - done
+[rocprof-trace-decoder configure] -- Check for working C compiler: /usr/lib64/ccache/cc - skipped
+[rocprof-trace-decoder configure] -- Detecting C compile features
+[rocprof-trace-decoder configure] -- Detecting C compile features - done
+[rocprof-trace-decoder configure] -- Detecting CXX compiler ABI info
+[rocprof-trace-decoder configure] -- Detecting CXX compiler ABI info - done
+[rocprof-trace-decoder configure] -- Check for working CXX compiler: /usr/bin/c++ - skipped
+[rocprof-trace-decoder configure] -- Detecting CXX compile features
+[rocprof-trace-decoder configure] -- Detecting CXX compile features - done
+[rocprof-trace-decoder configure] -- Detected librocprof-trace-decoder release arch: linux_glibc_2_28_x86_64
+[rocprof-trace-decoder configure] -- Configuring done (0.3s)
+[rocprof-trace-decoder configure] -- Generating done (0.0s)
+[rocprof-trace-decoder configure] CMake Warning:
+[rocprof-trace-decoder configure]   Manually-specified variables were not used by the project:
+[rocprof-trace-decoder configure] 
+[rocprof-trace-decoder configure]     THEROCK_STAGE_INSTALL_ROOT
+[rocprof-trace-decoder configure] 
+[rocprof-trace-decoder configure] 
+[rocprof-trace-decoder configure] -- Build files have been written to: /mnt/build/TheRock/build/profiler/rocprof-trace-decoder/build
+[rocprof-trace-decoder configure SUCCEEDED in 0 seconds]
+[5/233] Configure sub-project rocm-half (in background)
+[rocm-half configure] CMake Deprecation Warning at CMakeLists.txt:1 (cmake_minimum_required):
+[rocm-half configure]   Compatibility with CMake < 3.10 will be removed from a future version of
+[rocm-half configure]   CMake.
+[rocm-half configure] 
+[rocm-half configure]   Update the VERSION argument <min> value.  Or, use the <min>...<max> syntax
+[rocm-half configure]   to tell CMake that the project requires at least <min> but has been updated
+[rocm-half configure]   to work with policies introduced by <max> or earlier.
+[rocm-half configure] 
+[rocm-half configure] 
+[rocm-half configure] -- Resolving packages from super-project: ROCmCMakeBuildTools;ROCM
+[rocm-half configure] -- The C compiler identification is GNU 15.2.1
+[rocm-half configure] -- The CXX compiler identification is GNU 15.2.1
+[rocm-half configure] -- Detecting C compiler ABI info
+[rocm-half configure] -- Detecting C compiler ABI info - done
+[rocm-half configure] -- Check for working C compiler: /usr/lib64/ccache/cc - skipped
+[rocm-half configure] -- Detecting C compile features
+[rocm-half configure] -- Detecting C compile features - done
+[rocm-half configure] -- Detecting CXX compiler ABI info
+[rocm-half configure] -- Detecting CXX compiler ABI info - done
+[rocm-half configure] -- Check for working CXX compiler: /usr/bin/c++ - skipped
+[rocm-half configure] -- Detecting CXX compile features
+[rocm-half configure] -- Detecting CXX compile features - done
+[rocm-half configure] -- Resolving super-project find_package(ROCM REQUIRED BYPASS_PROVIDER NO_DEFAULT_PATH PATHS /mnt/build/TheRock/build/base/rocm-cmake/dist/share/rocm/cmake)
+[rocm-half configure] CMake Deprecation Warning at /mnt/build/TheRock/build/base/rocm-cmake/dist/share/rocm/cmake/ROCMConfig.cmake:12 (message):
+[rocm-half configure]   Use of find_package(ROCM) is deprecated as of ROCm 6.4.  Please use
+[rocm-half configure]   find_package(ROCmCMakeBuildTools)
+[rocm-half configure] Call Stack (most recent call first):
+[rocm-half configure]   /mnt/build/TheRock/cmake/therock_subproject_dep_provider.cmake:60 (find_package)
+[rocm-half configure]   CMakeLists.txt:17 (find_package)
+[rocm-half configure] 
+[rocm-half configure] 
+[rocm-half configure] -- Resolving super-project find_package(ROCmCMakeBuildTools BYPASS_PROVIDER NO_DEFAULT_PATH PATHS /mnt/build/TheRock/build/base/rocm-cmake/dist/share/rocmcmakebuildtools/cmake)
+[rocm-half configure] -- rocm-cmake: Set license file to /mnt/build/TheRock/base/half/LICENSE.txt.
+[rocm-half configure] -- Configuring done (0.3s)
+[rocm-half configure] -- Generating done (0.0s)
+[rocm-half configure] CMake Warning:
+[rocm-half configure]   Manually-specified variables were not used by the project:
+[rocm-half configure] 
+[rocm-half configure]     THEROCK_STAGE_INSTALL_ROOT
+[rocm-half configure] 
+[rocm-half configure] 
+[rocm-half configure] -- Build files have been written to: /mnt/build/TheRock/build/base/half/build
+[rocm-half configure SUCCEEDED in 0 seconds]
+[6/233] Building sub-project therock-zlib (in background)
+[7/233] Configure sub-project rocm-core (in background)
+[rocm-core configure] -- The CXX compiler identification is GNU 15.2.1
+[rocm-core configure] -- Detecting CXX compiler ABI info
+[rocm-core configure] -- Detecting CXX compiler ABI info - done
+[rocm-core configure] -- Check for working CXX compiler: /usr/bin/c++ - skipped
+[rocm-core configure] -- Detecting CXX compile features
+[rocm-core configure] -- Detecting CXX compile features - done
+[rocm-core configure] -- ROCM_VERSION = 7.12.0
+[rocm-core configure] -- VERSION_MAJOR : 7
+[rocm-core configure] -- VERSION_MINOR : 12
+[rocm-core configure] -- VERSION_PATCH : 0
+[rocm-core configure] -- VERSION_POINT : 
+[rocm-core configure] -- ROCM_LIBPATCH_VERSION : 71200
+[rocm-core configure] -- VERSION_COMMIT_COUNT : 2
+[rocm-core configure] -- VERSION_HASH : 7b886380f9-dirty
+[rocm-core configure] -- VERSION_BUILD : 
+[rocm-core configure] -- CPACK_DEBIAN_PACKAGE_RELEASE : 
+[rocm-core configure] -- CPACK_RPM_PACKAGE_RELEASE : 
+[rocm-core configure] -- Using CPACK_PACKAGE_VERSION 7.12.0.71200
+[rocm-core configure] -- Using CPACK_DEBIAN_PACKAGE_RELEASE local
+[rocm-core configure] -- Using CPACK_RPM_PACKAGE_RELEASE: local%{?dist}
+[rocm-core configure] -- Set RPATH  on rocm-core
+[rocm-core configure] -- Configuring done (0.7s)
+[rocm-core configure] -- Generating done (0.0s)
+[rocm-core configure] CMake Warning:
+[rocm-core configure]   Manually-specified variables were not used by the project:
+[rocm-core configure] 
+[rocm-core configure]     THEROCK_STAGE_INSTALL_ROOT
+[rocm-core configure] 
+[rocm-core configure] 
+[rocm-core configure] -- Build files have been written to: /mnt/build/TheRock/build/base/rocm-core/build
+[rocm-core configure SUCCEEDED in 1 seconds]
+[8/233] Building sub-project therock-eigen (in background)
+[9/233] Stage installing sub-project therock-zlib
+[10/233] Stage installing sub-project therock-eigen
+[11/233] Building sub-project therock-fftw3 (in background)
+[12/233] Stage installing sub-project therock-fftw3
+[13/233] Configure sub-project therock-frugally-deep (in background)
+[14/233] Building sub-project therock-fftw3f (in background)
+[15/233] Building sub-project therock-frugally-deep (in background)
+[16/233] Stage installing sub-project therock-fftw3f
+[17/233] Stage installing sub-project therock-frugally-deep
+[18/233] Populate artifact fftw3
+[19/233] Configure sub-project rocprofiler-register (in background)
+[rocprofiler-register configure] -- The C compiler identification is GNU 15.2.1
+[rocprofiler-register configure] -- The CXX compiler identification is GNU 15.2.1
+[rocprofiler-register configure] -- Detecting C compiler ABI info
+[rocprofiler-register configure] -- Detecting C compiler ABI info - done
+[rocprofiler-register configure] -- Check for working C compiler: /usr/lib64/ccache/cc - skipped
+[rocprofiler-register configure] -- Detecting C compile features
+[rocprofiler-register configure] -- Detecting C compile features - done
+[rocprofiler-register configure] -- Detecting CXX compiler ABI info
+[rocprofiler-register configure] -- Detecting CXX compiler ABI info - done
+[rocprofiler-register configure] -- Check for working CXX compiler: /usr/bin/c++ - skipped
+[rocprofiler-register configure] -- Detecting CXX compile features
+[rocprofiler-register configure] -- Detecting CXX compile features - done
+[rocprofiler-register configure] -- Found Git: /usr/bin/git (found version "2.52.0")
+[rocprofiler-register configure] -- [rocprofiler-register] version 0.6.0 (0.6.0)
+[rocprofiler-register configure] -- [rocprofiler-register] git revision: 
+[rocprofiler-register configure] -- [rocprofiler-register] git describe: v0.6.0
+[rocprofiler-register configure] -- Found dl-library: /usr/lib64/libdl.a
+[rocprofiler-register configure] -- Performing Test c_rocprofiler_register_werror
+[rocprofiler-register configure] -- Performing Test c_rocprofiler_register_werror - Success
+[rocprofiler-register configure] -- Performing Test cxx_rocprofiler_register_werror
+[rocprofiler-register configure] -- Performing Test cxx_rocprofiler_register_werror - Success
+[rocprofiler-register configure] -- Performing Test c_rocprofiler_register_dl_rdynamic
+[rocprofiler-register configure] -- Performing Test c_rocprofiler_register_dl_rdynamic - Success
+[rocprofiler-register configure] -- Performing Test cxx_rocprofiler_register_dl_rdynamic
+[rocprofiler-register configure] -- Performing Test cxx_rocprofiler_register_dl_rdynamic - Success
+[rocprofiler-register configure] -- Found rt-library: /usr/lib64/librt.a
+[rocprofiler-register configure] -- Performing Test c_rocprofiler_register_build_flags_W
+[rocprofiler-register configure] -- Performing Test c_rocprofiler_register_build_flags_W - Success
+[rocprofiler-register configure] -- Performing Test cxx_rocprofiler_register_build_flags_W
+[rocprofiler-register configure] -- Performing Test cxx_rocprofiler_register_build_flags_W - Success
+[rocprofiler-register configure] -- Performing Test c_rocprofiler_register_build_flags_Wall
+[rocprofiler-register configure] -- Performing Test c_rocprofiler_register_build_flags_Wall - Success
+[rocprofiler-register configure] -- Performing Test cxx_rocprofiler_register_build_flags_Wall
+[rocprofiler-register configure] -- Performing Test cxx_rocprofiler_register_build_flags_Wall - Success
+[rocprofiler-register configure] -- Performing Test c_rocprofiler_register_build_flags_Wno_unknown_pragmas
+[rocprofiler-register configure] -- Performing Test c_rocprofiler_register_build_flags_Wno_unknown_pragmas - Success
+[rocprofiler-register configure] -- Performing Test cxx_rocprofiler_register_build_flags_Wno_unknown_pragmas
+[rocprofiler-register configure] -- Performing Test cxx_rocprofiler_register_build_flags_Wno_unknown_pragmas - Success
+[rocprofiler-register configure] -- Performing Test c_rocprofiler_register_build_flags_fstack_protector_strong
+[rocprofiler-register configure] -- Performing Test c_rocprofiler_register_build_flags_fstack_protector_strong - Success
+[rocprofiler-register configure] -- Performing Test cxx_rocprofiler_register_build_flags_fstack_protector_strong
+[rocprofiler-register configure] -- Performing Test cxx_rocprofiler_register_build_flags_fstack_protector_strong - Success
+[rocprofiler-register configure] -- Performing Test c_rocprofiler_register_build_flags_Wstack_protector
+[rocprofiler-register configure] -- Performing Test c_rocprofiler_register_build_flags_Wstack_protector - Success
+[rocprofiler-register configure] -- Performing Test cxx_rocprofiler_register_build_flags_Wstack_protector
+[rocprofiler-register configure] -- Performing Test cxx_rocprofiler_register_build_flags_Wstack_protector - Success
+[rocprofiler-register configure] -- Performing Test c_rocprofiler_register_build_flags_Wstack_usage_8192
+[rocprofiler-register configure] -- Performing Test c_rocprofiler_register_build_flags_Wstack_usage_8192 - Success
+[rocprofiler-register configure] -- Performing Test cxx_rocprofiler_register_build_flags_Wstack_usage_8192
+[rocprofiler-register configure] -- Performing Test cxx_rocprofiler_register_build_flags_Wstack_usage_8192 - Success
+[rocprofiler-register configure] -- Performing Test cxx_rocprofiler_register_build_flags_faligned_new
+[rocprofiler-register configure] -- Performing Test cxx_rocprofiler_register_build_flags_faligned_new - Success
+[rocprofiler-register configure] -- Performing Test c_rocprofiler_register_developer_flags_Werror
+[rocprofiler-register configure] -- Performing Test c_rocprofiler_register_developer_flags_Werror - Success
+[rocprofiler-register configure] -- Performing Test cxx_rocprofiler_register_developer_flags_Werror
+[rocprofiler-register configure] -- Performing Test cxx_rocprofiler_register_developer_flags_Werror - Success
+[rocprofiler-register configure] -- Performing Test c_rocprofiler_register_developer_flags_Wdouble_promotion
+[rocprofiler-register configure] -- Performing Test c_rocprofiler_register_developer_flags_Wdouble_promotion - Success
+[rocprofiler-register configure] -- Performing Test cxx_rocprofiler_register_developer_flags_Wdouble_promotion
+[rocprofiler-register configure] -- Performing Test cxx_rocprofiler_register_developer_flags_Wdouble_promotion - Success
+[rocprofiler-register configure] -- Performing Test c_rocprofiler_register_developer_flags_Wshadow
+[rocprofiler-register configure] -- Performing Test c_rocprofiler_register_developer_flags_Wshadow - Success
+[rocprofiler-register configure] -- Performing Test cxx_rocprofiler_register_developer_flags_Wshadow
+[rocprofiler-register configure] -- Performing Test cxx_rocprofiler_register_developer_flags_Wshadow - Success
+[rocprofiler-register configure] -- Performing Test c_rocprofiler_register_developer_flags_Wextra
+[rocprofiler-register configure] -- Performing Test c_rocprofiler_register_developer_flags_Wextra - Success
+[rocprofiler-register configure] -- Performing Test cxx_rocprofiler_register_developer_flags_Wextra
+[rocprofiler-register configure] -- Performing Test cxx_rocprofiler_register_developer_flags_Wextra - Success
+[rocprofiler-register configure] -- Performing Test c_rocprofiler_register_developer_flags_Wno_deprecated_declarations
+[rocprofiler-register configure] -- Performing Test c_rocprofiler_register_developer_flags_Wno_deprecated_declarations - Success
+[rocprofiler-register configure] -- Performing Test cxx_rocprofiler_register_developer_flags_Wno_deprecated_declarations
+[rocprofiler-register configure] -- Performing Test cxx_rocprofiler_register_developer_flags_Wno_deprecated_declarations - Success
+[rocprofiler-register configure] -- Performing Test CMAKE_HAVE_LIBC_PTHREAD
+[rocprofiler-register configure] -- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success
+[rocprofiler-register configure] -- Found Threads: TRUE
+[rocprofiler-register configure] -- Could NOT find stdcxxfs-library (missing: stdcxxfs_LIBRARY) 
+[rocprofiler-register configure] -- Looking for C++ include dlfcn.h
+[rocprofiler-register configure] -- Looking for C++ include dlfcn.h - found
+[rocprofiler-register configure] -- Looking for C++ include elf.h
+[rocprofiler-register configure] -- Looking for C++ include elf.h - found
+[rocprofiler-register configure] -- Looking for C++ include glob.h
+[rocprofiler-register configure] -- Looking for C++ include glob.h - found
+[rocprofiler-register configure] -- Looking for C++ include link.h
+[rocprofiler-register configure] -- Looking for C++ include link.h - found
+[rocprofiler-register configure] -- Looking for C++ include pwd.h
+[rocprofiler-register configure] -- Looking for C++ include pwd.h - found
+[rocprofiler-register configure] -- Looking for C++ include sys/exec_elf.h
+[rocprofiler-register configure] -- Looking for C++ include sys/exec_elf.h - not found
+[rocprofiler-register configure] -- Looking for C++ include sys/syscall.h
+[rocprofiler-register configure] -- Looking for C++ include sys/syscall.h - found
+[rocprofiler-register configure] -- Looking for C++ include sys/time.h
+[rocprofiler-register configure] -- Looking for C++ include sys/time.h - found
+[rocprofiler-register configure] -- Looking for C++ include sys/types.h
+[rocprofiler-register configure] -- Looking for C++ include sys/types.h - found
+[rocprofiler-register configure] -- Looking for C++ include sys/utsname.h
+[rocprofiler-register configure] -- Looking for C++ include sys/utsname.h - found
+[rocprofiler-register configure] -- Looking for C++ include sys/wait.h
+[rocprofiler-register configure] -- Looking for C++ include sys/wait.h - found
+[rocprofiler-register configure] -- Looking for C++ include syscall.h
+[rocprofiler-register configure] -- Looking for C++ include syscall.h - found
+[rocprofiler-register configure] -- Looking for C++ include syslog.h
+[rocprofiler-register configure] -- Looking for C++ include syslog.h - found
+[rocprofiler-register configure] -- Looking for C++ include ucontext.h
+[rocprofiler-register configure] -- Looking for C++ include ucontext.h - found
+[rocprofiler-register configure] -- Looking for C++ include unistd.h
+[rocprofiler-register configure] -- Looking for C++ include unistd.h - found
+[rocprofiler-register configure] -- Looking for C++ include stdint.h
+[rocprofiler-register configure] -- Looking for C++ include stdint.h - found
+[rocprofiler-register configure] -- Looking for C++ include stddef.h
+[rocprofiler-register configure] -- Looking for C++ include stddef.h - found
+[rocprofiler-register configure] -- Check size of mode_t
+[rocprofiler-register configure] -- Check size of mode_t - done
+[rocprofiler-register configure] -- Check size of ssize_t
+[rocprofiler-register configure] -- Check size of ssize_t - done
+[rocprofiler-register configure] -- Looking for dladdr
+[rocprofiler-register configure] -- Looking for dladdr - found
+[rocprofiler-register configure] -- Looking for fcntl
+[rocprofiler-register configure] -- Looking for fcntl - found
+[rocprofiler-register configure] -- Looking for posix_fadvise
+[rocprofiler-register configure] -- Looking for posix_fadvise - found
+[rocprofiler-register configure] -- Looking for pread
+[rocprofiler-register configure] -- Looking for pread - found
+[rocprofiler-register configure] -- Looking for pwrite
+[rocprofiler-register configure] -- Looking for pwrite - found
+[rocprofiler-register configure] -- Looking for sigaction
+[rocprofiler-register configure] -- Looking for sigaction - found
+[rocprofiler-register configure] -- Looking for sigaltstack
+[rocprofiler-register configure] -- Looking for sigaltstack - found
+[rocprofiler-register configure] -- Looking for backtrace
+[rocprofiler-register configure] -- Looking for backtrace - found
+[rocprofiler-register configure] -- Looking for backtrace_symbols
+[rocprofiler-register configure] -- Looking for backtrace_symbols - found
+[rocprofiler-register configure] -- Looking for _chsize_s
+[rocprofiler-register configure] -- Looking for _chsize_s - not found
+[rocprofiler-register configure] -- Looking for UnDecorateSymbolName
+[rocprofiler-register configure] -- Looking for UnDecorateSymbolName - not found
+[rocprofiler-register configure] -- Looking for abi::__cxa_demangle
+[rocprofiler-register configure] -- Looking for abi::__cxa_demangle - found
+[rocprofiler-register configure] -- Looking for __argv
+[rocprofiler-register configure] -- Looking for __argv - not found
+[rocprofiler-register configure] -- Looking for getprogname
+[rocprofiler-register configure] -- Looking for getprogname - not found
+[rocprofiler-register configure] -- Looking for program_invocation_short_name
+[rocprofiler-register configure] -- Looking for program_invocation_short_name - found
+[rocprofiler-register configure] -- Performing Test HAVE___PROGNAME
+[rocprofiler-register configure] -- Performing Test HAVE___PROGNAME - Success
+[rocprofiler-register configure] -- Performing Test HAVE_PC_FROM_UCONTEXT_uc_mcontext_gregs_REG_PC
+[rocprofiler-register configure] -- Performing Test HAVE_PC_FROM_UCONTEXT_uc_mcontext_gregs_REG_PC - Failed
+[rocprofiler-register configure] -- Performing Test HAVE_PC_FROM_UCONTEXT_uc_mcontext_gregs_REG_EIP
+[rocprofiler-register configure] -- Performing Test HAVE_PC_FROM_UCONTEXT_uc_mcontext_gregs_REG_EIP - Failed
+[rocprofiler-register configure] -- Performing Test HAVE_PC_FROM_UCONTEXT_uc_mcontext_gregs_REG_RIP
+[rocprofiler-register configure] -- Performing Test HAVE_PC_FROM_UCONTEXT_uc_mcontext_gregs_REG_RIP - Success
+[rocprofiler-register configure] -- Looking for gmtime_r
+[rocprofiler-register configure] -- Looking for gmtime_r - found
+[rocprofiler-register configure] -- Looking for localtime_r
+[rocprofiler-register configure] -- Looking for localtime_r - found
+[rocprofiler-register configure] -- Performing Test COMPILER_HAS_HIDDEN_VISIBILITY
+[rocprofiler-register configure] -- Performing Test COMPILER_HAS_HIDDEN_VISIBILITY - Success
+[rocprofiler-register configure] -- Performing Test COMPILER_HAS_HIDDEN_INLINE_VISIBILITY
+[rocprofiler-register configure] -- Performing Test COMPILER_HAS_HIDDEN_INLINE_VISIBILITY - Success
+[rocprofiler-register configure] -- Performing Test COMPILER_HAS_DEPRECATED_ATTR
+[rocprofiler-register configure] -- Performing Test COMPILER_HAS_DEPRECATED_ATTR - Success
+[rocprofiler-register configure] -- {fmt} version: 11.1.4
+[rocprofiler-register configure] -- Build type: Release
+[rocprofiler-register configure] -- [rocprofiler-register] BUILD_SHARED_LIBS :: ON
+[rocprofiler-register configure] -- [rocprofiler-register] BUILD_STATIC_LIBS :: OFF
+[rocprofiler-register configure] -- [rocprofiler-register] CMAKE_POSITION_INDEPENDENT_CODE :: ON
+[rocprofiler-register configure] -- [rocprofiler-register] ROCPROFILER_REGISTER_BUILD_CI :: OFF
+[rocprofiler-register configure] -- [rocprofiler-register] ROCPROFILER_REGISTER_BUILD_DEFAULT_ATTACHMENT :: OFF
+[rocprofiler-register configure] -- [rocprofiler-register] ROCPROFILER_REGISTER_BUILD_DEVELOPER :: OFF
+[rocprofiler-register configure] -- [rocprofiler-register] ROCPROFILER_REGISTER_BUILD_FMT :: ON
+[rocprofiler-register configure] -- [rocprofiler-register] ROCPROFILER_REGISTER_BUILD_GLOG :: ON
+[rocprofiler-register configure] -- [rocprofiler-register] ROCPROFILER_REGISTER_BUILD_SAMPLES :: OFF
+[rocprofiler-register configure] -- [rocprofiler-register] ROCPROFILER_REGISTER_BUILD_TESTS :: OFF
+[rocprofiler-register configure] -- [rocprofiler-register] ROCPROFILER_REGISTER_DEP_ROCMCORE :: OFF
+[rocprofiler-register configure] -- [rocprofiler-register] ROCPROFILER_REGISTER_ENABLE_CLANG_TIDY :: OFF
+[rocprofiler-register configure] -- [rocprofiler-register] ROCPROFILER_REGISTER_PACKAGE_FILE_NAME :: rocprofiler-register-0.6.0-Linux
+[rocprofiler-register configure] -- [rocprofiler-register] ROCPROFILER_REGISTER_PACKAGING_COMPONENTS :: core;tests
+[rocprofiler-register configure] -- The following features are defined/enabled (+):
+[rocprofiler-register configure]      BUILD_SHARED_LIBS: Build shared libraries
+[rocprofiler-register configure]      CMAKE_POSITION_INDEPENDENT_CODE: Build position independent code
+[rocprofiler-register configure]      ROCPROFILER_REGISTER_BUILD_FMT: Build FMT
+[rocprofiler-register configure]      ROCPROFILER_REGISTER_BUILD_GLOG: Build GLOG
+[rocprofiler-register configure]      ROCPROFILER_REGISTER_PACKAGE_FILE_NAME: CPack filename -- ["rocprofiler-register-0.6.0-Linux"]
+[rocprofiler-register configure]      ROCPROFILER_REGISTER_PACKAGING_COMPONENTS: Packaging components -- ["core;tests"]
+[rocprofiler-register configure] 
+[rocprofiler-register configure] -- The following features are NOT defined/enabled (-):
+[rocprofiler-register configure]      BUILD_STATIC_LIBS: Build static libraries
+[rocprofiler-register configure]      CPACK_DEBIAN_PACKAGE_DEPENDS: Debian package dependencies
+[rocprofiler-register configure]      CPACK_RPM_PACKAGE_REQUIRES: RPM package dependencies
+[rocprofiler-register configure]      ROCPROFILER_REGISTER_BUILD_CI: Enable continuous integration additions
+[rocprofiler-register configure]      ROCPROFILER_REGISTER_BUILD_DEFAULT_ATTACHMENT: Enable attachment by default, instead of requiring an environment variable when the application starts
+[rocprofiler-register configure]      ROCPROFILER_REGISTER_BUILD_DEVELOPER: Extra build flags for development like -Werror
+[rocprofiler-register configure]      ROCPROFILER_REGISTER_BUILD_SAMPLES: Enable building the code samples
+[rocprofiler-register configure]      ROCPROFILER_REGISTER_BUILD_TESTS: Enable building the tests
+[rocprofiler-register configure]      ROCPROFILER_REGISTER_DEP_ROCMCORE: DEB and RPM package depend on rocm-core package
+[rocprofiler-register configure]      ROCPROFILER_REGISTER_ENABLE_CLANG_TIDY: Enable clang-tidy checks
+[rocprofiler-register configure]      ROCPROFILER_REGISTER_MEMCHECK: Memory checker type
+[rocprofiler-register configure] 
+[rocprofiler-register configure] -- Set RPATH $ORIGIN on rocprofiler-register
+[rocprofiler-register configure] -- Configuring done (6.2s)
+[rocprofiler-register configure] -- Generating done (0.0s)
+[rocprofiler-register configure] CMake Warning:
+[rocprofiler-register configure]   Manually-specified variables were not used by the project:
+[rocprofiler-register configure] 
+[rocprofiler-register configure]     THEROCK_STAGE_INSTALL_ROOT
+[rocprofiler-register configure] 
+[rocprofiler-register configure] 
+[rocprofiler-register configure] -- Build files have been written to: /mnt/build/TheRock/build/base/rocprofiler-register/build
+[rocprofiler-register configure SUCCEEDED in 6 seconds]
+[20/233] Configure sub-project therock-grpc (in background)
+[21/233] Building sub-project therock-host-blas (in background)
+[22/233] Stage installing sub-project therock-host-blas
+[23/233] Populate artifact host-blas
+[24/233] Configure sub-project therock-SuiteSparse (in background)
+[25/233] Building sub-project therock-expat (in background)
+[26/233] Stage installing sub-project therock-expat
+[27/233] Populate artifact sysdeps-expat
+[28/233] Building sub-project therock-SuiteSparse (in background)
+[29/233] Stage installing sub-project therock-SuiteSparse
+[30/233] Populate artifact host-suite-sparse
+[31/233] Building sub-project therock-boost (in background)
+[32/233] Stage installing sub-project therock-boost
+[33/233] Building sub-project therock-libcap (in background)
+[34/233] Stage installing sub-project therock-libcap
+[35/233] Building sub-project therock-libdrm (in background)
+[36/233] Stage installing sub-project therock-libdrm
+[37/233] Configure sub-project rocm_smi_lib (in background)
+[rocm_smi_lib configure] &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+[rocm_smi_lib configure]                     CMake ROCm SMI (Library) [root]                
+[rocm_smi_lib configure] &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+[rocm_smi_lib configure] -- Sub-project pkg-config prefixes: /mnt/build/TheRock/build/third-party/sysdeps/linux/libdrm/build/stage/lib/rocm_sysdeps
+[rocm_smi_lib configure] -- The C compiler identification is GNU 15.2.1
+[rocm_smi_lib configure] -- The CXX compiler identification is GNU 15.2.1
+[rocm_smi_lib configure] -- Detecting C compiler ABI info
+[rocm_smi_lib configure] -- Detecting C compiler ABI info - done
+[rocm_smi_lib configure] -- Check for working C compiler: /usr/lib64/ccache/cc - skipped
+[rocm_smi_lib configure] -- Detecting C compile features
+[rocm_smi_lib configure] -- Detecting C compile features - done
+[rocm_smi_lib configure] -- Detecting CXX compiler ABI info
+[rocm_smi_lib configure] -- Detecting CXX compiler ABI info - done
+[rocm_smi_lib configure] -- Check for working CXX compiler: /usr/bin/c++ - skipped
+[rocm_smi_lib configure] -- Detecting CXX compile features
+[rocm_smi_lib configure] -- Detecting CXX compile features - done
+[rocm_smi_lib configure] -- Found PkgConfig: /usr/bin/pkg-config (found version "2.3.0")
+[rocm_smi_lib configure] -- Checking for module 'libdrm'
+[rocm_smi_lib configure] --   Found libdrm, version 2.4.127
+[rocm_smi_lib configure] fatal: No names found, cannot describe anything.
+[rocm_smi_lib configure] usage: git rev-list [<options>] <commit>... [--] [<path>...]
+[rocm_smi_lib configure] 
+[rocm_smi_lib configure]   limiting output:
+[rocm_smi_lib configure]     --max-count=<n>
+[rocm_smi_lib configure]     --max-age=<epoch>
+[rocm_smi_lib configure]     --min-age=<epoch>
+[rocm_smi_lib configure]     --sparse
+[rocm_smi_lib configure]     --no-merges
+[rocm_smi_lib configure]     --min-parents=<n>
+[rocm_smi_lib configure]     --no-min-parents
+[rocm_smi_lib configure]     --max-parents=<n>
+[rocm_smi_lib configure]     --no-max-parents
+[rocm_smi_lib configure]     --remove-empty
+[rocm_smi_lib configure]     --all
+[rocm_smi_lib configure]     --branches
+[rocm_smi_lib configure]     --tags
+[rocm_smi_lib configure]     --remotes
+[rocm_smi_lib configure]     --stdin
+[rocm_smi_lib configure]     --exclude-hidden=[fetch|receive|uploadpack]
+[rocm_smi_lib configure]     --quiet
+[rocm_smi_lib configure]   ordering output:
+[rocm_smi_lib configure]     --topo-order
+[rocm_smi_lib configure]     --date-order
+[rocm_smi_lib configure]     --reverse
+[rocm_smi_lib configure]   formatting output:
+[rocm_smi_lib configure]     --parents
+[rocm_smi_lib configure]     --children
+[rocm_smi_lib configure]     --objects | --objects-edge
+[rocm_smi_lib configure]     --disk-usage[=human]
+[rocm_smi_lib configure]     --unpacked
+[rocm_smi_lib configure]     --header | --pretty
+[rocm_smi_lib configure]     --[no-]object-names
+[rocm_smi_lib configure]     --abbrev=<n> | --no-abbrev
+[rocm_smi_lib configure]     --abbrev-commit
+[rocm_smi_lib configure]     --left-right
+[rocm_smi_lib configure]     --count
+[rocm_smi_lib configure]     -z
+[rocm_smi_lib configure]   special purpose:
+[rocm_smi_lib configure]     --bisect
+[rocm_smi_lib configure]     --bisect-vars
+[rocm_smi_lib configure]     --bisect-all
+[rocm_smi_lib configure] usage: git rev-list [<options>] <commit>... [--] [<path>...]
+[rocm_smi_lib configure] 
+[rocm_smi_lib configure]   limiting output:
+[rocm_smi_lib configure]     --max-count=<n>
+[rocm_smi_lib configure]     --max-age=<epoch>
+[rocm_smi_lib configure]     --min-age=<epoch>
+[rocm_smi_lib configure]     --sparse
+[rocm_smi_lib configure]     --no-merges
+[rocm_smi_lib configure]     --min-parents=<n>
+[rocm_smi_lib configure]     --no-min-parents
+[rocm_smi_lib configure]     --max-parents=<n>
+[rocm_smi_lib configure]     --no-max-parents
+[rocm_smi_lib configure]     --remove-empty
+[rocm_smi_lib configure]     --all
+[rocm_smi_lib configure]     --branches
+[rocm_smi_lib configure]     --tags
+[rocm_smi_lib configure]     --remotes
+[rocm_smi_lib configure]     --stdin
+[rocm_smi_lib configure]     --exclude-hidden=[fetch|receive|uploadpack]
+[rocm_smi_lib configure]     --quiet
+[rocm_smi_lib configure]   ordering output:
+[rocm_smi_lib configure]     --topo-order
+[rocm_smi_lib configure]     --date-order
+[rocm_smi_lib configure]     --reverse
+[rocm_smi_lib configure]   formatting output:
+[rocm_smi_lib configure]     --parents
+[rocm_smi_lib configure]     --children
+[rocm_smi_lib configure]     --objects | --objects-edge
+[rocm_smi_lib configure]     --disk-usage[=human]
+[rocm_smi_lib configure]     --unpacked
+[rocm_smi_lib configure]     --header | --pretty
+[rocm_smi_lib configure]     --[no-]object-names
+[rocm_smi_lib configure]     --abbrev=<n> | --no-abbrev
+[rocm_smi_lib configure]     --abbrev-commit
+[rocm_smi_lib configure]     --left-right
+[rocm_smi_lib configure]     --count
+[rocm_smi_lib configure]     -z
+[rocm_smi_lib configure]   special purpose:
+[rocm_smi_lib configure]     --bisect
+[rocm_smi_lib configure]     --bisect-vars
+[rocm_smi_lib configure]     --bisect-all
+[rocm_smi_lib configure] 0 were found since previous release
+[rocm_smi_lib configure] Package version: 7.8.0.0-local-build-0-7b886380f9-dirty
+[rocm_smi_lib configure] -- Performing Test CXX_SUPPORTS_WTRAMPOLINES
+[rocm_smi_lib configure] -- Performing Test CXX_SUPPORTS_WTRAMPOLINES - Success
+[rocm_smi_lib configure] &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+[rocm_smi_lib configure]                     CMake ROCm SMI (Library)                       
+[rocm_smi_lib configure] &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+[rocm_smi_lib configure] 
+[rocm_smi_lib configure] Build Configuration:
+[rocm_smi_lib configure] --------Proj Src Dir: /mnt/build/TheRock/rocm-systems/projects/rocm-smi-lib
+[rocm_smi_lib configure] Package version: 7.8.0.0-local-build-0-7b886380f9-dirty
+[rocm_smi_lib configure] fatal: No names found, cannot describe anything.
+[rocm_smi_lib configure] SOVERSION: 1.0
+[rocm_smi_lib configure] &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+[rocm_smi_lib configure]                     CMake OAM (Library)                            
+[rocm_smi_lib configure] &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+[rocm_smi_lib configure] 
+[rocm_smi_lib configure] Build Configuration:
+[rocm_smi_lib configure] --------Proj Src Dir: /mnt/build/TheRock/rocm-systems/projects/rocm-smi-lib
+[rocm_smi_lib configure] Package version: 7.8.0.0-local-build-0-7b886380f9-dirty
+[rocm_smi_lib configure] fatal: No names found, cannot describe anything.
+[rocm_smi_lib configure] SOVERSION: 1.0
+[rocm_smi_lib configure] &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+[rocm_smi_lib configure]                     CMake ROCm SMI (Library) [root] END            
+[rocm_smi_lib configure] &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+[rocm_smi_lib configure] -- Set RPATH $ORIGIN/../lib;$ORIGIN/../lib/rocm_sysdeps/lib on rocm_smi_ex
+[rocm_smi_lib configure] -- Set RPATH $ORIGIN/../lib;$ORIGIN/../lib/rocm_sysdeps/lib on oam_ex
+[rocm_smi_lib configure] -- Set RPATH $ORIGIN;$ORIGIN/rocm_sysdeps/lib on rocm_smi64
+[rocm_smi_lib configure] -- Set RPATH $ORIGIN;$ORIGIN/rocm_sysdeps/lib on oam
+[rocm_smi_lib configure] -- Configuring done (0.7s)
+[rocm_smi_lib configure] -- Generating done (0.0s)
+[rocm_smi_lib configure] CMake Warning:
+[rocm_smi_lib configure]   Manually-specified variables were not used by the project:
+[rocm_smi_lib configure] 
+[rocm_smi_lib configure]     THEROCK_STAGE_INSTALL_ROOT
+[rocm_smi_lib configure] 
+[rocm_smi_lib configure] 
+[rocm_smi_lib configure] -- Build files have been written to: /mnt/build/TheRock/build/base/rocm_smi_lib/build
+[rocm_smi_lib configure SUCCEEDED in 1 seconds]
+ninja: build stopped: interrupted by user.
