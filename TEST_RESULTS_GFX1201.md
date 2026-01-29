@@ -68,7 +68,7 @@ The **Radeon AI PRO R9700** punches above its weight class:
 │ GPU                  │  VRAM   │ Street Price │ Gen (t/s)*   │ Notes            │
 ├──────────────────────┼─────────┼──────────────┼──────────────┼──────────────────┤
 │ RTX 4090             │  24 GB  │ $1,983+      │ ~150-190     │ Scalped to hell  │
-│ Radeon AI PRO R9700  │  32 GB  │ $1,299       │ ~123         │ ← YOU ARE HERE   │
+│ Radeon AI PRO R9700  │  32 GB  │ $1,329       │ ~123         │ ← YOU ARE HERE   │
 │ RTX 4080 SUPER       │  16 GB  │ $950-1,200   │ ~147-150     │ Half the VRAM    │
 │ RTX 3090             │  24 GB  │ $800-1,000   │ ~100-120     │ Used market only │
 └──────────────────────┴─────────┴──────────────┴──────────────┴──────────────────┘
@@ -83,7 +83,7 @@ The **Radeon AI PRO R9700** punches above its weight class:
 | **32GB VRAM** | Run 30B+ models fully on GPU (4090 caps at ~24GB) |
 | **Open Source** | Full ROCm stack, no CUDA lock-in |
 | **Pro Features** | ECC memory option, ISV certifications coming |
-| **Price/VRAM** | $40.59/GB vs $82.63/GB (4090) — half the cost per GB |
+| **Price/VRAM** | $41.53/GB vs $82.63/GB (4090) |
 | **Power Efficiency** | 300W TDP vs 450W (RTX 4090) |
 
 #### 📊 Real Numbers (This Build)
