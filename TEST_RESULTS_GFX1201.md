@@ -6,7 +6,7 @@
 ![GCC](https://img.shields.io/badge/GCC-15.2-green?logo=gnu&logoColor=white)
 ![Python](https://img.shields.io/badge/Python-3.14-yellow?logo=python&logoColor=white)
 ![Status](https://img.shields.io/badge/Status-✅_Production_Ready-brightgreen)
-![LLM](https://img.shields.io/badge/LLM-123_t/s-purple?logo=openai&logoColor=white)
+![LLM](https://img.shields.io/badge/LLM-158_t/s_Qwen3--30B_MoE-purple)
 
 ## AMD Radeon AI PRO R9700 (gfx1201) on Fedora Atomic
 
@@ -52,7 +52,8 @@ error: no member named 'uint_fast8_t' in the global namespace
 |:-------|:------|
 | Build Time | ~4 hours (with ccache) |
 | Components | 86 staged, all passing |
-| LLM Performance | **123 t/s** generation (GPT-OSS-20B) |
+| LLM Performance | **158 t/s** generation (Qwen3-30B MoE) |
+| PyTorch | **124.89 TFLOPS** FP16 (gfx12-generic wheel) |
 | Status | **Production Ready** ✅ |
 
 ---
@@ -68,7 +69,7 @@ The **Radeon AI PRO R9700** punches above its weight class:
 │ GPU                  │  VRAM   │ Street Price │ Gen (t/s)*   │ Notes            │
 ├──────────────────────┼─────────┼──────────────┼──────────────┼──────────────────┤
 │ RTX 4090             │  24 GB  │ $1,983+      │ ~150-190     │ Scalped to hell  │
-│ Radeon AI PRO R9700  │  32 GB  │ $1,329       │ ~123         │ ← YOU ARE HERE   │
+│ Radeon AI PRO R9700  │  32 GB  │ $1,329       │ ~158         │ ← YOU ARE HERE   │
 │ RTX 4080 SUPER       │  16 GB  │ $950-1,200   │ ~147-150     │ Half the VRAM    │
 │ RTX 3090             │  24 GB  │ $800-1,000   │ ~100-120     │ Used market only │
 └──────────────────────┴─────────┴──────────────┴──────────────┴──────────────────┘
@@ -91,8 +92,9 @@ The **Radeon AI PRO R9700** punches above its weight class:
 | Model | R9700 (ROCm) | RTX 4090 (CUDA)* | Delta |
 |:------|:------------:|:----------------:|:-----:|
 | 14B Q4_K_M | 50.6 t/s | ~65-70 t/s | -22% |
-| 20B MoE | 123.5 t/s | ~140-150 t/s | -15% |
+| 30B MoE Q4_K_M | **158 t/s** | ~140-150 t/s | **+8% 🏆** |
 | 30B+ models | ✅ Fits in VRAM | ⚠️ Needs offload | **Win** |
+| PyTorch FP16 GEMM | **124.89 TFLOPS** | ~160 TFLOPS | -22% |
 
 > *NVIDIA numbers from [community benchmarks](https://www.hardware-corner.net/gpu-ranking-local-llm/) and [Puget Systems](https://www.pugetsystems.com/labs/articles/llm-inference-consumer-gpu-performance/)
 
@@ -104,7 +106,7 @@ The **Radeon AI PRO R9700** punches above its weight class:
 
 | Component | Details |
 |:----------|:--------|
-| **Test Date** | 2026-01-28 |
+| **Test Date** | 2026-01-31 |
 | **Platform** | Fedora 43 (Aurora/Atomic) |
 | **Compiler** | GCC 15.2.1 |
 | **Target GPU** | AMD Radeon AI PRO R9700 |
@@ -120,15 +122,24 @@ The **Radeon AI PRO R9700** punches above its weight class:
 ╔═══════════════════════════════════════════════════════════════╗
 ║                    TEST SUITE RESULTS                        ║
 ╠═══════════════════════════════════════════════════════════════╣
+║  HIP compute kernel ...............  1/1    ✅ PASSED        ║
 ║  rocrand basic .................... 44/44   ✅ PASSED        ║
 ║  rocrand C++ API .................. 30/30   ✅ PASSED        ║
 ║  rocrand generate ................. 47/47   ✅ PASSED        ║
 ║  rocrand hipgraphs ................ 57/57   ✅ PASSED        ║
 ║  normal distribution .............. 12/12   ✅ PASSED        ║
-║  HIP compute kernel ...............  1/1    ✅ PASSED        ║
-║  LLM inference (Qwen 30B) .........  1/1    ✅ PASSED        ║
+║  rocFFT (runtime JIT) .............  1/1    ✅ PASSED        ║
+║  hipFFT interface .................  1/1    ✅ PASSED        ║
+║  torch.fft.fft ....................  1/1    ✅ PASSED        ║
+║  PyTorch FP16 GEMM (125 TFLOPS) ..  1/1    ✅ PASSED        ║
+║  PyTorch BF16 GEMM (125 TFLOPS) ..  1/1    ✅ PASSED        ║
+║  PyTorch FP32 GEMM (16 TFLOPS) ...  1/1    ✅ PASSED        ║
+║  rocprofiler-systems ..............  1/1    ✅ PASSED        ║
+║  LLM inference (Qwen3-14B) .......  1/1    ✅ PASSED        ║
+║  LLM inference (Qwen3-30B MoE) ...  1/1    ✅ PASSED        ║
+║  Concurrent GPU load test .........  1/1    ✅ PASSED        ║
 ╠═══════════════════════════════════════════════════════════════╣
-║  TOTAL                              192     ✅ 100% PASS     ║
+║  TOTAL                              201     ✅ 100% PASS     ║
 ╚═══════════════════════════════════════════════════════════════╝
 ```
 
@@ -136,12 +147,31 @@ The **Radeon AI PRO R9700** punches above its weight class:
 
 ### ⚡ Performance Benchmarks
 
+#### PyTorch `torch.mm` — Peak Compute
+
+| Precision | Matrix Size | TFLOPS | Latency | Status |
+|:---------:|:-----------:|:------:|:-------:|:------:|
+| **FP16** | 4096×4096 | **124.89** 🔥 | 1.100 ms | 🟢 |
+| **BF16** | 4096×4096 | **124.96** 🔥 | 1.100 ms | 🟢 |
+| **FP32** | 4096×4096 | **15.98** | 8.602 ms | 🟢 |
+
+> Under 23 GB LLM load, FP16 throughput drops only ~6% → **117.73 TFLOPS**
+
 #### hipBLASLt Matrix Multiplication
 
 | Precision | Matrix Size | TFLOPS | Latency | Status |
 |:---------:|:-----------:|:------:|:-------:|:------:|
 | **FP16** | 2048³ | **122.1** | 140.7 µs | 🟢 |
 | **BF16** | 4096³ | **120.4** | 1141.5 µs | 🟢 |
+
+#### rocFFT — Runtime JIT Kernels
+
+| Operation | Size | Status |
+|:---------:|:----:|:------:|
+| `torch.fft.fft` | 4096 | 🟢 |
+| Complex-to-complex | 1D | 🟢 |
+
+> rocFFT compiles kernels at runtime for gfx1201 — no AOT needed
 
 #### rocrand Random Number Generation
 
@@ -219,11 +249,13 @@ GPU compute test passed!
 
 | Model | Size | Params | Prompt (t/s) | Generate (t/s) | Status |
 |:------|:----:|:------:|:------------:|:--------------:|:------:|
+| **Qwen3-30B-A3B** Q4_K_M | 17.3 GB | 30.5B (3B active) | **463** | **158** 🔥 | 🟢 |
 | **Qwen3-14B** Q4_K_M | 8.4 GB | 14.8B | **417.5** | **50.6** | 🟢 |
-| **Qwen3-30B-A3B** Q4_K_M | 17.3 GB | 30.5B | **335.4** | **77.3** | 🟢 |
+| **Qwen3-30B-A3B** Q4_K_M (prev) | 17.3 GB | 30.5B | **335.4** | **83.7** | 🟢 |
 | **GPT-OSS-20B** MXFP4 | 11.3 GB | 20.9B | **624.5** | **123.5** | 🟢 |
 
-> Tested with llama.cpp b7751 (785a71008), 512 token prompt, 128 token generation
+> 🔥 **158 tok/s** on Qwen3-30B MoE — latest llama.cpp with optimized RDNA 4 dispatch
+> Tested with llama.cpp, 512 token prompt, 128 token generation
 
 ---
 
@@ -232,15 +264,22 @@ GPU compute test passed!
 <details>
 <summary>Click to expand full component list</summary>
 
-| Category | Components |
-|:---------|:-----------|
-| **Compiler** | amd-llvm (LLVM/Clang) |
-| **Runtime** | HIP, CLR, ROCR-Runtime |
-| **Math Libraries** | rocBLAS, rocSOLVER, hipBLAS, hipBLASLt, rocFFT, rocRAND |
-| **ML Libraries** | MIOpen |
-| **Communication** | RCCL |
-| **Profiling** | rocprofiler-systems |
-| **Debug** | rocgdb |
+| Category | Components | Status |
+|:---------|:-----------|:------:|
+| **Compiler** | amd-llvm (LLVM/Clang), hipcc, hipify | ✅ |
+| **Runtime** | HIP (amdhip64), hiprtc, CLR, ROCR-Runtime | ✅ |
+| **Math — BLAS** | rocBLAS, hipBLASLt, hipBLAS, hipBLAS-common | ✅ |
+| **Math — Solvers** | rocSOLVER, hipSOLVER, rocSPARSE, hipSPARSE, hipSPARSELt | ✅ |
+| **Math — FFT** | rocFFT (runtime JIT), hipFFT, FFTW3 | ✅ |
+| **Math — Random** | rocRAND, hipRAND | ✅ |
+| **Math — Primitives** | rocPRIM, hipCUB, rocThrust, rocWMMA, libhipcxx | ✅ |
+| **ML Libraries** | MIOpen, Composable Kernel, hipDNN | ✅ |
+| **Communication** | RCCL | ✅ |
+| **Profiling** | rocprofiler-systems, rocprofiler-sdk, roctracer | ✅ |
+| **Debug** | rocgdb, amd-dbgapi, rocr-debug-agent | ✅ |
+| **PyTorch** | 2.9.1 wheel (gfx12-generic) — 125 TFLOPS FP16 | ✅ |
+| **Triton** | 3.6 JIT targeting gfx1201 | ✅ |
+| **llama.cpp** | Native gfx1201 — 158 tok/s Qwen3-30B MoE | ✅ |
 
 </details>
 
