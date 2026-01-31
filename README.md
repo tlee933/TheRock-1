@@ -6,7 +6,7 @@
 ![GCC](https://img.shields.io/badge/GCC-15.2-green?logo=gnu&logoColor=white)
 ![Python](https://img.shields.io/badge/Python-3.14-yellow?logo=python&logoColor=white)
 ![Build](https://img.shields.io/badge/Build-✅_Passing-brightgreen)
-![LLM](https://img.shields.io/badge/LLM-123_t/s-purple)
+![LLM](https://img.shields.io/badge/LLM-158_t/s_Qwen3--30B_MoE-purple)
 
 > **🔥 EXPERIMENTAL FORK** — Custom ROCm 7.12 build for gfx1201 (RDNA 4) on Fedora 43 Atomic with GCC 15 and Python 3.14
 
@@ -30,14 +30,7 @@ See **[TEST_RESULTS_GFX1201.md](TEST_RESULTS_GFX1201.md)** for full benchmarks, 
 
 ---
 
-<<<<<<< HEAD
 ## Quick Start — Fedora 43 Atomic
-=======
-| Platform |                                                                                                                                                                                                                                                   Prebuilt tarballs and ROCm Python packages |                                                                                                                                                                                                                                                        PyTorch Python packages | Native Packages                                                                                                                                                                                                                                  |
-| -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: | -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Linux    | [![Release portable Linux packages](https://github.com/ROCm/TheRock/actions/workflows/release_portable_linux_packages.yml/badge.svg?branch=main&event=schedule)](https://github.com/ROCm/TheRock/actions/workflows/release_portable_linux_packages.yml?query=branch%3Amain+event%3Aschedule) | [![Release Portable Linux PyTorch Wheels](https://github.com/ROCm/TheRock/actions/workflows/release_portable_linux_pytorch_wheels.yml/badge.svg?branch=main)](https://github.com/ROCm/TheRock/actions/workflows/release_portable_linux_pytorch_wheels.yml?query=branch%3Amain) | [![Build Native Linux Packages](https://github.com/ROCm/TheRock/actions/workflows/build_native_linux_packages.yml/badge.svg?branch=main)](https://github.com/ROCm/TheRock/actions/workflows/build_native_linux_packages.yml?query=branch%3Amain) |
-| Windows  |                      [![Release Windows packages](https://github.com/ROCm/TheRock/actions/workflows/release_windows_packages.yml/badge.svg?branch=main&event=schedule)](https://github.com/ROCm/TheRock/actions/workflows/release_windows_packages.yml?query=branch%3Amain+event%3Aschedule) |                      [![Release Windows PyTorch Wheels](https://github.com/ROCm/TheRock/actions/workflows/release_windows_pytorch_wheels.yml/badge.svg?branch=main)](https://github.com/ROCm/TheRock/actions/workflows/release_windows_pytorch_wheels.yml?query=branch%3Amain) | —                                                                                                                                                                                                                                                |
->>>>>>> d5ef31d553dd445daf849132c569c7a4de30dd10
 
 ### Prerequisites
 
@@ -125,126 +118,7 @@ llama-bench -m your_model.gguf -p 512 -n 128 -ngl 99
 
 The build can be customized through cmake feature flags.
 
-<<<<<<< HEAD
 ### Required: GPU Target
-=======
-#### Required configuration flags
-
-- `-DTHEROCK_AMDGPU_FAMILIES=`
-
-  or
-
-- `-DTHEROCK_AMDGPU_TARGETS=`
-
-> [!NOTE]
-> Not all family and targets are currently supported.
-> See [therock_amdgpu_targets.cmake](cmake/therock_amdgpu_targets.cmake) file
-> for available options.
-
-#### Discovering available targets on your system
-
-In case you don't have an existing ROCm/HIP installation from which you can run any of these tools:
-
-| Tool                    | Platform |
-| ----------------------- | -------- |
-| `amd-smi`               | Linux    |
-| `rocm-smi`              | Linux    |
-| `rocm_agent_enumerator` | Linux    |
-| `hipinfo`               | Windows  |
-| `offload-arch`          | Both     |
-
-You can install the `rocm` Python package for any architecture inside a venv and run `offload-arch` from there:
-
-1. `python build_tools/setup_venv.py --index-name nightly --index-subdir gfx110X-all --packages rocm .tmpvenv`
-1. `.tmpvenv/bin/offload-arch` on Linux, `.tmpvenv\Scripts\offload-arch` on Windows
-1. `rm -rf .tmpvenv`
-
-#### Optional configuration flags
-
-By default, the project builds everything available. The following group flags
-enable/disable selected subsets:
-
-| Group flag                         | Description                          |
-| ---------------------------------- | ------------------------------------ |
-| `-DTHEROCK_ENABLE_ALL=OFF`         | Disables all optional components     |
-| `-DTHEROCK_ENABLE_CORE=OFF`        | Disables all core components         |
-| `-DTHEROCK_ENABLE_COMM_LIBS=OFF`   | Disables all communication libraries |
-| `-DTHEROCK_ENABLE_DEBUG_TOOLS=OFF` | Disables all debug tools             |
-| `-DTHEROCK_ENABLE_MATH_LIBS=OFF`   | Disables all math libraries          |
-| `-DTHEROCK_ENABLE_ML_LIBS=OFF`     | Disables all ML libraries            |
-| `-DTHEROCK_ENABLE_PROFILER=OFF`    | Disables profilers                   |
-| `-DTHEROCK_ENABLE_DC_TOOLS=OFF`    | Disables data center tools           |
-
-Individual features can be controlled separately (typically in combination with
-`-DTHEROCK_ENABLE_ALL=OFF` or `-DTHEROCK_RESET_FEATURES=ON` to force a
-minimal build):
-
-| Component flag                         | Description                                    |
-| -------------------------------------- | ---------------------------------------------- |
-| `-DTHEROCK_ENABLE_AMD_DBGAPI=ON`       | Enables the ROCm debug API library             |
-| `-DTHEROCK_ENABLE_COMPILER=ON`         | Enables the GPU+host compiler toolchain        |
-| `-DTHEROCK_ENABLE_HIPIFY=ON`           | Enables the hipify tool                        |
-| `-DTHEROCK_ENABLE_CORE_RUNTIME=ON`     | Enables the core runtime components and tools  |
-| `-DTHEROCK_ENABLE_HIP_RUNTIME=ON`      | Enables the HIP runtime components             |
-| `-DTHEROCK_ENABLE_OCL_RUNTIME=ON`      | Enables the OpenCL runtime components          |
-| `-DTHEROCK_ENABLE_ROCGDB=ON`           | Enables the ROCm debugger (ROCgdb)             |
-| `-DTHEROCK_ENABLE_ROCPROFV3=ON`        | Enables rocprofv3                              |
-| `-DTHEROCK_ENABLE_ROCPROFSYS=ON`       | Enables rocprofiler-systems                    |
-| `-DTHEROCK_ENABLE_RCCL=ON`             | Enables RCCL                                   |
-| `-DTHEROCK_ENABLE_ROCR_DEBUG_AGENT=ON` | Enables the ROCR debug agent library           |
-| `-DTHEROCK_ENABLE_PRIM=ON`             | Enables the PRIM library                       |
-| `-DTHEROCK_ENABLE_BLAS=ON`             | Enables the BLAS libraries                     |
-| `-DTHEROCK_ENABLE_RAND=ON`             | Enables the RAND libraries                     |
-| `-DTHEROCK_ENABLE_SOLVER=ON`           | Enables the SOLVER libraries                   |
-| `-DTHEROCK_ENABLE_SPARSE=ON`           | Enables the SPARSE libraries                   |
-| `-DTHEROCK_ENABLE_MIOPEN=ON`           | Enables MIOpen                                 |
-| `-DTHEROCK_ENABLE_MIOPEN_PLUGIN=ON`    | Enables MIOpen_plugin                          |
-| `-DTHEROCK_ENABLE_HIPDNN_SAMPLES=ON`   | Enables hipDNN samples (hipDNN Usage Examples) |
-| `-DTHEROCK_ENABLE_HIPDNN=ON`           | Enables hipDNN                                 |
-| `-DTHEROCK_ENABLE_ROCWMMA=ON`          | Enables rocWMMA                                |
-| `-DTHEROCK_ENABLE_RDC=ON`              | Enables ROCm Data Center Tool (Linux only)     |
-| `-DTHEROCK_ENABLE_FUSILLI_PLUGIN=ON`   | Enables Fusilli Plugin                         |
-| `-DTHEROCK_ENABLE_LIBHIPCXX=ON`        | Enables libhipcxx                              |
-
-> [!TIP]
-> Enabling any features will implicitly enable their *minimum* dependencies. Some
-> libraries (like MIOpen) have a number of *optional* dependencies, which must
-> be enabled manually if enabling/disabling individual features.
-
-> [!TIP]
-> A report of enabled/disabled features and flags will be printed on every
-> CMake configure.
-
-By default, components are built from the sources fetched via the submodules.
-For some components, external sources can be used instead.
-
-| External source settings                        | Description                                    |
-| ----------------------------------------------- | ---------------------------------------------- |
-| `-DTHEROCK_USE_EXTERNAL_COMPOSABLE_KERNEL=OFF`  | Use external composable-kernel source location |
-| `-DTHEROCK_USE_EXTERNAL_RCCL=OFF`               | Use external rccl source location              |
-| `-DTHEROCK_USE_EXTERNAL_RCCL_TESTS=OFF`         | Use external rccl-tests source location        |
-| `-DTHEROCK_COMPOSABLE_KERNEL_SOURCE_DIR=<PATH>` | Path to composable-kernel sources              |
-| `-DTHEROCK_RCCL_SOURCE_DIR=<PATH>`              | Path to rccl sources                           |
-| `-DTHEROCK_RCCL_TESTS_SOURCE_DIR=<PATH>`        | Path to rccl-tests sources                     |
-
-Further flags allow to build components with specific features enabled.
-
-| Other flags                | Description                                                              |
-| -------------------------- | ------------------------------------------------------------------------ |
-| `-DTHEROCK_ENABLE_MPI=OFF` | Enables building components with Message Passing Interface (MPI) support |
-
-> [!NOTE]
-> Building components with MPI support, currently requires MPI to be
-> pre-installed until [issue #1284](https://github.com/ROCm/TheRock/issues/1284)
-> is resolved.
-
-### CMake build usage
-
-For workflows that demand frequent rebuilds, it is _recommended to build it with ccache_ enabled to speed up the build.
-See instructions in the next section for [Linux](#ccache-usage-on-linux) and [Windows](#ccache-usage-on-windows).
-
-Otherwise, ROCm/HIP can be configured and build with just the following commands:
->>>>>>> d5ef31d553dd445daf849132c569c7a4de30dd10
 
 ```bash
 -DTHEROCK_AMDGPU_FAMILIES=gfx1201    # RDNA 4 (this fork)
