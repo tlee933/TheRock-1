@@ -1,1 +1,170 @@
-https://tinyurl.com/ydjkj2y5
+================================================================================
+  AMD Radeon AI PRO R9700 (gfx1201 / RDNA 4) — AI Benchmark Results
+  Fedora Atomic 43 | ROCm 7.12 (TheRock) | llama.cpp b7751 | PyTorch 2.9.1
+  Date: January 2026
+================================================================================
+
+Hardware:
+  GPU:    AMD Radeon AI PRO R9700 (Navi 48, gfx1201)
+  VRAM:   32 GB GDDR6 (256-bit)
+  CUs:    64
+  Clock:  Up to 3.0 GHz boost
+  PCIe:   Gen 5 x16
+  CPU:    AMD Ryzen (12 threads)
+  RAM:    32 GB DDR5
+
+Software:
+  OS:       Fedora Atomic 43 (Silverblue/Kinoite)
+  Kernel:   6.18.x
+  GCC:      15.2.1
+  Python:   3.14
+  ROCm:     7.12 (built from source via TheRock)
+  llama.cpp: b7751 (785a71008) — native gfx1201 HIP
+  PyTorch:  2.9.1+rocm.gfx12
+
+================================================================================
+  LLM INFERENCE — llama-bench (llama.cpp b7751, ROCm HIP)
+================================================================================
+
+All models fully GPU-offloaded (ngl=99). pp512 = prompt processing 512 tokens,
+tg128 = text generation 128 tokens.
+
+--- Without Flash Attention ---
+
+| Model                            | Size     | Params  | Quant   | pp512 (t/s) | tg128 (t/s) |
+|----------------------------------|----------|---------|---------|-------------|-------------|
+| Llama 3.2 1B Instruct            | 1.23 GiB | 1.24 B  | Q8_0    | 12,316.4    | 231.0       |
+| Qwen3-4B Instruct 2507           | 2.53 GiB | 4.02 B  | Q4_K_M  | 5,481.0     | 115.0       |
+| Qwen2.5-Coder-7B Instruct        | 4.68 GiB | 7.61 B  | Q4_K_M  | 3,789.0     | 97.5        |
+| Qwen3-8B                         | 4.92 GiB | 8.19 B  | Q4_K_M  | 3,600.0     | 80.2        |
+| Phi-4 Reasoning Plus              | 8.44 GiB | 14.7 B  | Q4_K_M  | 2,025.0     | 53.3        |
+| Qwen3-14B                        | 8.38 GiB | 14.77 B | Q4_K_M  | 2,054.0     | 53.4        |
+| Qwen3-30B-A3B (MoE, 8/128 exp)  | 17.28 GiB| 30.53 B | Q4_K_M  | 348.6       | 77.3        |
+
+--- With Flash Attention (fa=1) ---
+
+| Model                            | Size     | Params  | Quant   | pp512 (t/s) | tg128 (t/s) |
+|----------------------------------|----------|---------|---------|-------------|-------------|
+| Qwen3-14B                        | 8.38 GiB | 14.77 B | Q4_K_M  | 2,038.3     | 53.2        |
+| Qwen3-30B-A3B (MoE, 8/128 exp)  | 17.28 GiB| 30.53 B | Q4_K_M  | 2,865.0     | 89.3        |
+
+Flash Attention Impact (Qwen3-30B-A3B):
+  pp512: 348.6 -> 2,865.0 t/s  (8.2x speedup)
+  tg128: 77.3  -> 89.3 t/s     (1.16x speedup)
+
+Notes:
+  - Qwen3-30B-A3B is a Mixture-of-Experts model: 30.53B total params, ~3B active
+  - 128 experts, 8 active per token — extremely efficient for its capability
+  - The MoE architecture benefits massively from flash attention on prompt processing
+  - At 89.3 tok/s generation with FA, this is faster than the dense 8B model
+
+================================================================================
+  PYTORCH COMPUTE BENCHMARKS — torch 2.9.1+rocm.gfx12
+================================================================================
+
+--- Matrix Multiplication (GEMM) ---
+
+| Precision | Matrix Size  | TFLOPS  | Notes                      |
+|-----------|-------------|---------|----------------------------|
+| BF16      | 4096x4096   | 124.68  | Peak observed              |
+| BF16      | 2048x2048   | 73.37   |                            |
+| BF16      | 8192x8192   | 119.73  |                            |
+| FP16      | 4096x4096   | 121.34  |                            |
+| FP16      | 2048x2048   | 72.71   |                            |
+| FP16      | 8192x8192   | 117.04  |                            |
+| FP32      | 4096x4096   | 15.22   |                            |
+| FP32      | 2048x2048   | 13.03   |                            |
+| FP32      | 8192x8192   | 16.91   | Peak FP32                  |
+
+Peak Performance:
+  BF16: 124.68 TFLOPS (4096x4096)
+  FP16: 121.34 TFLOPS (4096x4096)
+  FP32: 16.91 TFLOPS (8192x8192)
+
+--- FFT Benchmarks ---
+
+| Operation              | Result  |
+|------------------------|---------|
+| torch.fft.fft(4096)    | PASS    |
+| torch.fft.rfft(8192)   | PASS    |
+| rocFFT runtime JIT      | Working |
+
+--- Memory Bandwidth ---
+
+| Test                        | Result      |
+|-----------------------------|-------------|
+| GPU Memory Bandwidth        | 611.1 GB/s  |
+| Theoretical Peak (256-bit)  | ~768 GB/s   |
+| Efficiency                  | ~79.6%      |
+
+--- Device Detection ---
+
+| Property              | Value                            |
+|-----------------------|----------------------------------|
+| torch.cuda.is_available() | True                         |
+| Device Name           | AMD Radeon AI PRO R9700          |
+| Architecture          | gfx1201                          |
+| HSA Override          | NOT USED (native detection)      |
+
+================================================================================
+  MODELS TESTED — Compatibility Matrix
+================================================================================
+
+| Model                                              | Status | Notes                       |
+|----------------------------------------------------|--------|-----------------------------|
+| Llama 3.2 1B Instruct Q8_0                         | PASS   | Full speed                  |
+| Qwen3-4B Instruct 2507 Q4_K_M                      | PASS   | Full speed                  |
+| Qwen2.5-Coder-7B Instruct Q4_K_M                   | PASS   | Full speed                  |
+| Qwen3-8B Q4_K_M                                    | PASS   | Full speed                  |
+| Phi-4 Reasoning Plus Q4_K_M                         | PASS   | Full speed                  |
+| Qwen3-14B Q4_K_M                                   | PASS   | Full speed                  |
+| Qwen3-30B-A3B Q4_K_M (standard)                    | PASS   | Full speed, FA recommended  |
+| Qwen3-30B-A3B-Thinking-2507 (Claude distill)       | FAIL   | Model fails to load (b7751)|
+| GPT-OSS-20B MXFP4                                  | FAIL   | Unsupported format          |
+| Qwen2.5-Coder-32B Q4_K_M                           | FAIL   | Exceeds VRAM               |
+
+================================================================================
+  FAILED MODEL ANALYSIS
+================================================================================
+
+Qwen3-30B-A3B-Thinking-2507-Claude-4.5-Sonnet-High-Reasoning-Distill:
+  - Architecture: qwen3moe (same as working model)
+  - GGUF version: v3
+  - Error: "failed to load model" — likely requires newer llama.cpp for
+    thinking/reasoning token extensions
+  - Workaround: Use standard Qwen3-30B-A3B instead
+
+GPT-OSS-20B MXFP4:
+  - Uses MXFP4 quantization format not supported by llama.cpp b7751
+  - May require updated GGUF support
+
+Qwen2.5-Coder-32B Q4_K_M:
+  - Model size (~19 GiB) exceeds available VRAM when other processes active
+  - Would work with full 32 GB VRAM available
+
+================================================================================
+  SYSTEM NOTES
+================================================================================
+
+- All benchmarks run on native gfx1201 — NO HSA_OVERRIDE_GFX_VERSION
+- ROCm built entirely from source via TheRock super-project
+- No Docker containers, no prebuilt packages
+- Fedora Atomic 43 with immutable root filesystem
+- Phoronix Test Suite could not be installed (requires PHP CLI,
+  which needs rpm-ostree install + reboot on Atomic)
+- All results are from direct tool execution instead
+
+================================================================================
+  SUMMARY
+================================================================================
+
+The AMD Radeon AI PRO R9700 (gfx1201) delivers:
+
+  89.3 tok/s on Qwen3-30B-A3B MoE (with flash attention)
+  231 tok/s on Llama 3.2 1B
+  124.68 TFLOPS BF16 peak (torch GEMM)
+  611.1 GB/s memory bandwidth
+  7/10 models tested successfully
+  Zero HSA overrides — fully native gfx1201
+
+All on an open-source ROCm stack built from raw source code.

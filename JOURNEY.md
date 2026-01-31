@@ -233,16 +233,24 @@ python3 build_prod_wheels.py build \
 
 ---
 
-## 🦙 Phase 6: Inference — 83 tok/s on Qwen3-30B
+## 🦙 Phase 6: Inference — 89.3 tok/s on Qwen3-30B
 
 Built `llama.cpp` with native `gfx1201` HIP support:
 
 ```
-🧠 Model:          Qwen3-30B-A3B (MoE, 3B active params)
-📦 Quantization:   Q4_K_M
-⚡ Throughput:     83 tokens/second
-🎮 GPU offload:    Full (16 GB VRAM)
+🧠 Model:          Qwen3-30B-A3B (MoE, 128 experts, 8 active)
+📦 Quantization:   Q4_K_M (17.28 GiB)
+⚡ Generation:     89.3 tokens/second (flash attention)
+🚀 Prompt:         2,865 tokens/second (flash attention)
+🎮 GPU offload:    Full (32 GB VRAM)
 ```
+
+Flash attention delivers an **8.2x speedup** on prompt processing —
+from 349 to 2,865 tok/s. The MoE architecture is *faster* at generation
+than the dense Qwen3-8B model despite having 30B total parameters. 🧠
+
+Full benchmark suite across 7 models (1B → 30B) in
+[phoronix_results.txt](phoronix_results.txt). 📊
 
 Concurrent GPU load testing confirmed stable operation under mixed
 workloads — inference + compute simultaneously without crashes or
