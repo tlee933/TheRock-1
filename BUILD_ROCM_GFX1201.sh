@@ -1,35 +1,49 @@
 #!/bin/bash
 #═══════════════════════════════════════════════════════════════════════════════
-#  TheRock ROCm Build Script for gfx1201 (AMD Radeon AI PRO R9700)
-#  Platform: Fedora 43+ Atomic/Silverblue/Aurora with GCC 15
+#  TheRock ROCm Build Script — gfx1201 (AMD Radeon AI PRO R9700 / RDNA 4)
+#  Platform: Fedora Atomic 43 · GCC 15 · Python 3.14
 #═══════════════════════════════════════════════════════════════════════════════
 #
 #  Usage:
 #    ./BUILD_ROCM_GFX1201.sh [command]
 #
 #  Commands:
-#    update    - Pull latest upstream and rebase
-#    fixes     - Check/apply GCC 15 compatibility fixes
-#    configure - Configure optimized build
-#    build     - Build ROCm (3-4 hours with -j4)
-#    install   - Setup /opt/rocm symlink and environment
-#    test      - Run test suite and benchmarks
-#    push      - Push to tlee933 fork
-#    all       - Run full pipeline
+#    update      Pull latest upstream and rebase
+#    fixes       Check/apply GCC 15 compatibility patches
+#    configure   Configure optimized CMake build
+#    build       Build ROCm from source (~3-4 hours with -j4)
+#    install     Setup /opt/rocm symlink and environment
+#    pip-libs    Install gfx120X ROCm pip packages (Tensile kernels)
+#    pytorch     Build PyTorch 2.9.1 wheel for gfx12-generic
+#    llama       Build llama.cpp for gfx1201
+#    test        Run verification suite
+#    push        Push to tlee933 fork
+#    status      Show component status
+#    all         Run full pipeline
 #
 #═══════════════════════════════════════════════════════════════════════════════
 #
-#  KNOWN ISSUES (to fix later):
-#  - rocprofiler-systems fails to build: dyninst component gets CMAKE_CXX_FLAGS
-#    passed with quotes, causing: cc1plus: error: argument to '-O' should be...
-#    Workaround: Disable with -DTHEROCK_ENABLE_ROCPROFSYS=OFF
-#    Impact: Profiling tools only, not required for HIP/ROCm runtime
+#  STATUS — January 2026
 #
-#  - rocFFT and rccl fail with GCC 15: GCC 15's <cstdint> header expects types
-#    like int_fast8_t in global namespace, but HIP device code doesn't provide them.
-#    Error: "no member named 'int_fast8_t' in the global namespace"
-#    Workaround: Disable with -DTHEROCK_ENABLE_CORE_MATH_LIBS=OFF or build individual libs
-#    Impact: FFT and collective communications libraries
+#  Working:
+#    ✓ HIP runtime / hipcc         Native gfx1201, no HSA_OVERRIDE needed
+#    ✓ rocBLAS / hipBLASLt          Tensile kernels via gfx120X pip package
+#    ✓ rocRAND / rocSOLVER          Built from source
+#    ✓ rocSPARSE / rocPRIM          Built from source
+#    ✓ MIOpen / Composable Kernel   Built from source
+#    ✓ RCCL                         Multi-GPU comms
+#    ✓ rocFFT / hipFFT              Built from source (runtime-compiled kernels)
+#    ✓ PyTorch 2.9.1                124.89 TFLOPS FP16 · gfx12-generic wheel
+#    ✓ Triton 3.6                   JIT targeting gfx1201
+#    ✓ llama.cpp                    83 tok/s Qwen3-30B MoE · native gfx1201
+#
+#  Disabled:
+#    ✗ rocprofiler-systems          dyninst CMAKE_CXX_FLAGS quoting bug
+#                                   (therock_subproject.cmake:1428)
+#
+#  Blocked upstream:
+#    ✗ FBGEMM GenAI                 CK needs Wave64, RDNA4 is Wave32 (ETA H1 2026)
+#    ✗ rocFFT AOT kernels           gfx1200 removed from AOT list, runtime fallback
 #
 #═══════════════════════════════════════════════════════════════════════════════
 
@@ -38,26 +52,40 @@ set -e
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR"
 
-# Colors
+# ─── Colors ──────────────────────────────────────────────────────────────────
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
-NC='\033[0m' # No Color
+CYAN='\033[0;36m'
+BOLD='\033[1m'
+DIM='\033[2m'
+NC='\033[0m'
 
 log_info()  { echo -e "${BLUE}[INFO]${NC} $1"; }
-log_ok()    { echo -e "${GREEN}[OK]${NC} $1"; }
+log_ok()    { echo -e "${GREEN}[  OK]${NC} $1"; }
 log_warn()  { echo -e "${YELLOW}[WARN]${NC} $1"; }
-log_error() { echo -e "${RED}[ERROR]${NC} $1"; }
+log_error() { echo -e "${RED}[ ERR]${NC} $1"; }
+log_step()  { echo -e "\n${BOLD}${CYAN}═══ $1 ═══${NC}\n"; }
 
-#───────────────────────────────────────────────────────────────────────────────
-# UPDATE: Pull latest upstream and rebase branch
-#───────────────────────────────────────────────────────────────────────────────
+# ─── Configuration ───────────────────────────────────────────────────────────
+ROCM_INSTALL=/opt/rocm
+ROCM_DIST="$SCRIPT_DIR/build/dist/rocm"
+PYTORCH_DIR="$SCRIPT_DIR/external-builds/pytorch"
+GPU_ARCH=gfx1201
+GPU_ARCH_GENERIC=gfx12-generic
+ROCM_NIGHTLY_VERSION="7.11.0a20260118"
+ROCM_NIGHTLY_INDEX="https://rocm.nightlies.amd.com/v2/gfx120X-all/"
+
+#═══════════════════════════════════════════════════════════════════════════════
+# UPDATE: Pull latest upstream and rebase
+#═══════════════════════════════════════════════════════════════════════════════
 do_update() {
+    log_step "UPDATE"
     log_info "Fetching upstream changes..."
     git fetch origin
 
-    local behind=$(git rev-list HEAD..origin/main --count)
+    local behind=$(git rev-list HEAD..origin/main --count 2>/dev/null || echo 0)
     if [ "$behind" -gt 0 ]; then
         log_info "Main is $behind commits ahead, rebasing..."
         git stash
@@ -67,294 +95,483 @@ do_update() {
         git rebase main
         log_ok "Branch rebased on latest main"
     else
-        log_ok "Already up to date"
+        log_ok "Already up to date with main"
     fi
 }
 
-#───────────────────────────────────────────────────────────────────────────────
-# FIXES: Check and apply GCC 15 compatibility patches
-#───────────────────────────────────────────────────────────────────────────────
+#═══════════════════════════════════════════════════════════════════════════════
+# FIXES: GCC 15 compatibility patches
+#═══════════════════════════════════════════════════════════════════════════════
+#
+# These patches are needed after running fetch_sources.py (which resets
+# submodules). They fix GCC 15's stricter <cstdint> and K&R requirements.
+#
 do_fixes() {
-    log_info "Checking GCC 15 compatibility fixes..."
+    log_step "GCC 15 FIXES"
 
-    local fixes_needed=0
+    local applied=0
+    local total=0
 
-    # Fix 1: elfio elf_types.hpp - cstdint
-    local file1="rocm-systems/projects/rocprofiler-sdk/external/elfio/elfio/elf_types.hpp"
-    if ! grep -q "#include <cstdint>" "$file1" 2>/dev/null; then
-        log_warn "Applying fix: $file1 (cstdint)"
-        sed -i '/#define ELFIO_ELF_TYPES_HPP/a #include <cstdint>' "$file1"
-        fixes_needed=1
-    fi
+    apply_fix() {
+        local file="$1"
+        local check="$2"
+        local desc="$3"
+        local cmd="$4"
+        total=$((total + 1))
 
-    # Fix 2: yaml-cpp emitterutils.cpp - cstdint
-    local file2="rocm-systems/projects/rocprofiler-sdk/external/yaml-cpp/src/emitterutils.cpp"
-    if ! grep -q "#include <cstdint>" "$file2" 2>/dev/null; then
-        log_warn "Applying fix: $file2 (cstdint)"
-        sed -i '/#include <algorithm>/a #include <cstdint>' "$file2"
-        fixes_needed=1
-    fi
+        if [ ! -f "$file" ]; then
+            log_warn "File not found: $file"
+            return
+        fi
 
-    # Fix 3: PAPI papi_hl.c - K&R function declaration
-    local file3="rocm-systems/projects/rocprofiler-systems/external/papi/src/high-level/papi_hl.c"
-    if grep -q "static int _internal_hl_read_user_events();" "$file3" 2>/dev/null; then
-        log_warn "Applying fix: $file3 (K&R declaration)"
-        sed -i 's/static int _internal_hl_read_user_events();/static int _internal_hl_read_user_events(const char *user_events);/' "$file3"
-        fixes_needed=1
-    fi
+        if grep -q "$check" "$file" 2>/dev/null; then
+            echo -e "  ${DIM}✓ $desc${NC}"
+            return
+        fi
 
-    # Fix 4: PAPI papi_vector.c - function pointer cast
-    local file4="rocm-systems/projects/rocprofiler-systems/external/papi/src/papi_vector.c"
-    if grep -q "v->get_system_info = ( int ( \* )(  ) ) vec_int_dummy;" "$file4" 2>/dev/null; then
-        log_warn "Applying fix: $file4 (function pointer)"
-        sed -i 's/v->get_system_info = ( int ( \* )(  ) ) vec_int_dummy;/v->get_system_info = ( int ( * )( papi_mdi_t * ) ) vec_int_dummy;/' "$file4"
-        fixes_needed=1
-    fi
+        log_info "Applying: $desc"
+        eval "$cmd"
+        applied=$((applied + 1))
+    }
 
-    # Fix 5: DyninstElfUtils.cmake - unterminated string warning
-    local file5="rocm-systems/projects/rocprofiler-systems/cmake/DyninstElfUtils.cmake"
-    if ! grep -q "Wno-error=unterminated-string-initialization" "$file5" 2>/dev/null; then
-        log_warn "Applying fix: $file5 (elfutils CFLAGS)"
-        sed -i 's/CFLAGS=-fPIC\\ -O3/CFLAGS=-fPIC\\ -O3\\ -Wno-error=unterminated-string-initialization/' "$file5"
-        fixes_needed=1
-    fi
+    # Fix 1: elfio elf_types.hpp — missing cstdint
+    apply_fix \
+        "rocm-systems/projects/rocprofiler-sdk/external/elfio/elfio/elf_types.hpp" \
+        "#include <cstdint>" \
+        "elfio/elf_types.hpp (cstdint)" \
+        "sed -i '/#define ELFIO_ELF_TYPES_HPP/a #include <cstdint>' \"\$file\""
 
-    # Fix 6: logger.hpp - algorithm header
-    local file6="rocm-systems/projects/rocprofiler-systems/source/lib/logger/logger.hpp"
-    if ! grep -q "#include <algorithm>" "$file6" 2>/dev/null; then
-        log_warn "Applying fix: $file6 (algorithm)"
-        sed -i '/#include <spdlog\/spdlog.h>/a #include <algorithm>' "$file6"
-        fixes_needed=1
-    fi
+    # Fix 2: yaml-cpp emitterutils.cpp — missing cstdint
+    apply_fix \
+        "rocm-systems/projects/rocprofiler-sdk/external/yaml-cpp/src/emitterutils.cpp" \
+        "#include <cstdint>" \
+        "yaml-cpp/emitterutils.cpp (cstdint)" \
+        "sed -i '/#include <algorithm>/a #include <cstdint>' \"\$file\""
 
-    # Fix 7: sha1.C - cstdint
-    local file7="rocm-systems/projects/rocprofiler-systems/external/dyninst/common/src/sha1.C"
-    if ! grep -q "#include <cstdint>" "$file7" 2>/dev/null; then
-        log_warn "Applying fix: $file7 (cstdint)"
-        sed -i '1i #include <cstdint>' "$file7"
-        fixes_needed=1
-    fi
+    # Fix 3: PAPI papi_hl.c — K&R function declaration
+    apply_fix \
+        "rocm-systems/projects/rocprofiler-systems/external/papi/src/high-level/papi_hl.c" \
+        "const char \*user_events" \
+        "papi/papi_hl.c (K&R declaration)" \
+        "sed -i 's/static int _internal_hl_read_user_events();/static int _internal_hl_read_user_events(const char *user_events);/' \"\$file\""
 
-    # Fix 8: arch-x86.h - cstdint
-    local file8="rocm-systems/projects/rocprofiler-systems/external/dyninst/common/src/arch-x86.h"
-    if ! grep -q "#include <cstdint>" "$file8" 2>/dev/null; then
-        log_warn "Applying fix: $file8 (cstdint)"
-        sed -i '/#include "dyn_register.h"/a #include <cstdint>' "$file8"
-        fixes_needed=1
-    fi
+    # Fix 4: PAPI papi_vector.c — function pointer cast
+    apply_fix \
+        "rocm-systems/projects/rocprofiler-systems/external/papi/src/papi_vector.c" \
+        "papi_mdi_t" \
+        "papi/papi_vector.c (function pointer)" \
+        "sed -i 's/v->get_system_info = ( int ( \* )(  ) ) vec_int_dummy;/v->get_system_info = ( int ( * )( papi_mdi_t * ) ) vec_int_dummy;/' \"\$file\""
 
-    # Fix 9: rocgdb PDF docs (bootc systems)
-    local file9="debug-tools/rocgdb/CMakeLists.txt"
-    if grep -q '${MAKE_EXECUTABLE} -s -C gdb install-pdf install-html' "$file9" 2>/dev/null; then
-        log_warn "Applying fix: $file9 (skip PDF docs)"
-        sed -i 's/${MAKE_EXECUTABLE} -s -C gdb install-pdf install-html/# Skipped: ${MAKE_EXECUTABLE} -s -C gdb install-pdf install-html/' "$file9"
-        fixes_needed=1
-    fi
+    # Fix 5: DyninstElfUtils.cmake — unterminated-string-initialization
+    apply_fix \
+        "rocm-systems/projects/rocprofiler-systems/cmake/DyninstElfUtils.cmake" \
+        "Wno-error=unterminated-string-initialization" \
+        "DyninstElfUtils.cmake (elfutils CFLAGS)" \
+        "sed -i 's/CFLAGS=-fPIC\\\\ -O3/CFLAGS=-fPIC\\\\ -O3\\\\ -Wno-error=unterminated-string-initialization/' \"\$file\""
+
+    # Fix 6: logger.hpp — missing algorithm header
+    apply_fix \
+        "rocm-systems/projects/rocprofiler-systems/source/lib/logger/logger.hpp" \
+        "#include <algorithm>" \
+        "logger.hpp (algorithm)" \
+        "sed -i '/#include <spdlog\\/spdlog.h>/a #include <algorithm>' \"\$file\""
+
+    # Fix 7: sha1.C — missing cstdint
+    apply_fix \
+        "rocm-systems/projects/rocprofiler-systems/external/dyninst/common/src/sha1.C" \
+        "#include <cstdint>" \
+        "dyninst/sha1.C (cstdint)" \
+        "sed -i '1i #include <cstdint>' \"\$file\""
+
+    # Fix 8: arch-x86.h — missing cstdint
+    apply_fix \
+        "rocm-systems/projects/rocprofiler-systems/external/dyninst/common/src/arch-x86.h" \
+        "#include <cstdint>" \
+        "dyninst/arch-x86.h (cstdint)" \
+        "sed -i '/#include \"dyn_register.h\"/a #include <cstdint>' \"\$file\""
+
+    # Fix 9: rocgdb PDF docs — fails on bootc/atomic systems
+    apply_fix \
+        "debug-tools/rocgdb/CMakeLists.txt" \
+        "# Skipped:" \
+        "rocgdb/CMakeLists.txt (skip PDF docs)" \
+        "sed -i 's/\${MAKE_EXECUTABLE} -s -C gdb install-pdf install-html/# Skipped: \${MAKE_EXECUTABLE} -s -C gdb install-pdf install-html/' \"\$file\""
 
     # Fix 10: libhipcxx atomic_codegen symlink
     local link10="math-libs/libhipcxx/test/atomic_codegen"
-    if [ ! -L "$link10" ] || [ ! -e "$link10" ]; then
-        log_warn "Applying fix: $link10 (symlink)"
+    total=$((total + 1))
+    if [ -L "$link10" ] && [ -e "$link10" ]; then
+        echo -e "  ${DIM}✓ libhipcxx/test/atomic_codegen symlink${NC}"
+    else
+        log_info "Applying: libhipcxx atomic_codegen symlink"
         cd math-libs/libhipcxx/test
         ln -sf ../../._upstream/.upstream-tests/atomic_codegen atomic_codegen
         cd "$SCRIPT_DIR"
-        fixes_needed=1
+        applied=$((applied + 1))
     fi
 
-    # Fix 11: libhipcxx cuobjdump check (already in .upstream-tests/test/CMakeLists.txt)
-    local file11="math-libs/libhipcxx/.upstream-tests/test/CMakeLists.txt"
-    if ! grep -q "cuobjdump_check" "$file11" 2>/dev/null; then
-        log_warn "Fix needed: $file11 (cuobjdump check) - apply manually"
-        fixes_needed=1
-    fi
-
-    # Fix 12: __clang_hip_math.h - GCC 15 cstdint compatibility for HIP device code
-    local file12="compiler/amd-llvm/clang/lib/Headers/__clang_hip_math.h"
-    if ! grep -q "GCC 15 compatibility" "$file12" 2>/dev/null; then
-        log_warn "Applying fix: $file12 (GCC 15 cstdint)"
-        sed -i '/#include <stdint.h>/a \
-// GCC 15 compatibility: ensure cstdint types are available\n\
-#if defined(__cplusplus) \&\& __has_include(<cstdint>)\n\
-#include <cstdint>\n\
-using std::uint8_t;\n\
-using std::uint16_t;\n\
-using std::uint32_t;\n\
-using std::uint64_t;\n\
-using std::int8_t;\n\
-using std::int16_t;\n\
-using std::int32_t;\n\
-using std::int64_t;\n\
-#endif' "$file12"
-        fixes_needed=1
-    fi
-
-    if [ "$fixes_needed" -eq 0 ]; then
-        log_ok "All GCC 15 fixes already applied"
+    echo ""
+    if [ "$applied" -eq 0 ]; then
+        log_ok "All $total GCC 15 fixes already applied"
     else
-        log_ok "Fixes applied"
+        log_ok "Applied $applied of $total fixes"
     fi
 }
 
-#───────────────────────────────────────────────────────────────────────────────
-# CONFIGURE: Setup optimized CMake build
-#───────────────────────────────────────────────────────────────────────────────
+#═══════════════════════════════════════════════════════════════════════════════
+# CONFIGURE: CMake build setup
+#═══════════════════════════════════════════════════════════════════════════════
 do_configure() {
-    log_info "Configuring optimized build for gfx1201..."
+    log_step "CONFIGURE"
+    log_info "Configuring build for $GPU_ARCH..."
 
     cmake -B build -GNinja \
-        -DTHEROCK_AMDGPU_FAMILIES=gfx1201 \
+        -DTHEROCK_AMDGPU_FAMILIES=$GPU_ARCH \
         -DCMAKE_BUILD_TYPE=Release \
         -DCMAKE_C_COMPILER_LAUNCHER=ccache \
         -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
         -DCMAKE_C_FLAGS="-O3 -march=native" \
         -DCMAKE_CXX_FLAGS="-O3 -march=native" \
-        -DTHEROCK_ENABLE_ROCPROFSYS=OFF  # Disabled: dyninst build issue with -O flags
+        -DTHEROCK_ENABLE_FFT=ON \
+        -DTHEROCK_ENABLE_FFTW3=ON \
+        -DTHEROCK_ENABLE_ROCPROFSYS=OFF
 
     log_ok "Configuration complete"
 }
 
-#───────────────────────────────────────────────────────────────────────────────
-# BUILD: Compile ROCm (use -j4 to avoid OOM)
-#───────────────────────────────────────────────────────────────────────────────
+#═══════════════════════════════════════════════════════════════════════════════
+# BUILD: Compile ROCm
+#═══════════════════════════════════════════════════════════════════════════════
 do_build() {
-    log_info "Starting build with -j4 (this takes 3-4 hours)..."
-    log_info "Monitor with: tail -f build.log"
+    log_step "BUILD"
+
+    local jobs="${2:-4}"
+    log_info "Building with -j$jobs..."
 
     if [ "$1" == "--background" ]; then
-        nohup ninja -C build -j4 > build.log 2>&1 &
+        nohup ninja -C build -j"$jobs" > build.log 2>&1 &
         echo $! > build.pid
         log_ok "Build started in background (PID: $(cat build.pid))"
+        log_info "Monitor: tail -f build.log"
     else
-        ninja -C build -j4 2>&1 | tee build.log
+        ninja -C build -j"$jobs" 2>&1 | tee build.log
         log_ok "Build complete"
     fi
 }
 
-#───────────────────────────────────────────────────────────────────────────────
+#═══════════════════════════════════════════════════════════════════════════════
 # INSTALL: Setup /opt/rocm symlink and environment
-#───────────────────────────────────────────────────────────────────────────────
+#═══════════════════════════════════════════════════════════════════════════════
 do_install() {
-    log_info "Setting up ROCm installation..."
+    log_step "INSTALL"
 
-    # Check if dist exists
-    if [ ! -d "build/dist/rocm" ]; then
-        log_error "build/dist/rocm not found - run build first"
+    if [ ! -d "$ROCM_DIST" ]; then
+        log_error "$ROCM_DIST not found — run build first"
         exit 1
     fi
 
-    # Setup /opt/rocm symlink (requires sudo)
-    if [ -L "/opt/rocm" ]; then
-        log_info "/opt/rocm symlink exists"
+    # /opt/rocm symlink
+    if [ -L "$ROCM_INSTALL" ]; then
+        local target=$(readlink -f "$ROCM_INSTALL")
+        log_ok "/opt/rocm -> $target"
     else
-        log_warn "Creating /opt/rocm symlink (requires sudo)"
-        sudo ln -sf "$SCRIPT_DIR/build/dist/rocm" /opt/rocm
+        log_info "Creating /opt/rocm symlink (requires sudo)"
+        sudo ln -sf "$ROCM_DIST" "$ROCM_INSTALL"
+        log_ok "/opt/rocm -> $ROCM_DIST"
     fi
 
-    # Create environment setup script
+    # ldconfig
+    if [ ! -f "/etc/ld.so.conf.d/rocm.conf" ]; then
+        log_info "Creating ldconfig entry (requires sudo)"
+        printf '%s\n' "$ROCM_INSTALL/lib" "$ROCM_INSTALL/lib64" \
+            | sudo tee /etc/ld.so.conf.d/rocm.conf > /dev/null
+        sudo ldconfig
+    fi
+
+    # Environment setup script
     cat > rocm_env.sh << 'ENVEOF'
 #!/bin/bash
-# ROCm Environment Setup for gfx1201
-export ROCM_PATH=/opt/rocm
-export HIP_PATH=/opt/rocm
-export PATH=$ROCM_PATH/bin:$PATH
-export LD_LIBRARY_PATH=$ROCM_PATH/lib:$ROCM_PATH/lib64:$LD_LIBRARY_PATH
-export HSA_OVERRIDE_GFX_VERSION=12.0.1
-export GPU_MAX_HW_QUEUES=8
+# ROCm Environment — TheRock 7.11 / gfx1201 / RDNA 4
+# No HSA_OVERRIDE_GFX_VERSION needed — native gfx1201 detection
 
-# For PyTorch
+export ROCM_PATH=/opt/rocm
+export HIP_PATH=$ROCM_PATH
+export HIP_PLATFORM=amd
+export HIP_COMPILER=clang
+
+# PATH (guard against duplicates)
+[[ ":$PATH:" != *":$ROCM_PATH/bin:"* ]] && export PATH=$ROCM_PATH/bin:$ROCM_PATH/lib/llvm/bin:$PATH
+
+# Libraries (flat assignment, not append)
+export LD_LIBRARY_PATH=$ROCM_PATH/lib:$ROCM_PATH/lib64
+
+# GPU tuning
+export GPU_DEVICE_ORDINAL=0
+export GPU_MAX_HW_QUEUES=8
+export HSA_ENABLE_SDMA=0
+export AMD_DIRECT_DISPATCH=0
+export HSA_XNACK=0
+
+# PyTorch
 export PYTORCH_ROCM_ARCH=gfx1201
 export HIP_VISIBLE_DEVICES=0
 ENVEOF
     chmod +x rocm_env.sh
 
-    # Update ldconfig
-    if [ ! -f "/etc/ld.so.conf.d/rocm.conf" ]; then
-        log_warn "Creating ldconfig entry (requires sudo)"
-        echo "/opt/rocm/lib" | sudo tee /etc/ld.so.conf.d/rocm.conf
-        echo "/opt/rocm/lib64" | sudo tee -a /etc/ld.so.conf.d/rocm.conf
-        sudo ldconfig
-    fi
-
     log_ok "Installation complete"
-    log_info "Source environment with: source rocm_env.sh"
+    log_info "Source environment: source rocm_env.sh"
 }
 
-#───────────────────────────────────────────────────────────────────────────────
-# TEST: Run test suite and benchmarks
-#───────────────────────────────────────────────────────────────────────────────
+#═══════════════════════════════════════════════════════════════════════════════
+# PIP-LIBS: Install gfx120X ROCm packages (Tensile kernels)
+#═══════════════════════════════════════════════════════════════════════════════
+do_pip_libs() {
+    log_step "PIP LIBRARIES (gfx120X)"
+
+    log_info "Installing ROCm $ROCM_NIGHTLY_VERSION gfx120X packages..."
+    log_info "These provide pre-compiled Tensile kernels for hipBLASLt on RDNA 4"
+
+    pip install --force-reinstall --pre \
+        --index-url "$ROCM_NIGHTLY_INDEX" \
+        "rocm[libraries,devel]==$ROCM_NIGHTLY_VERSION"
+
+    # Verify
+    local pkg=$(pip show rocm-sdk-libraries-gfx120X-all 2>/dev/null | grep Version)
+    if [ -n "$pkg" ]; then
+        log_ok "Installed: $pkg"
+    else
+        log_warn "gfx120X package may not have installed correctly"
+    fi
+
+    # Remove stale gfx110X if present
+    if pip show rocm-sdk-libraries-gfx110X-all &>/dev/null; then
+        log_info "Removing stale gfx110X package..."
+        pip uninstall -y rocm-sdk-libraries-gfx110X-all
+        log_ok "gfx110X removed"
+    fi
+}
+
+#═══════════════════════════════════════════════════════════════════════════════
+# PYTORCH: Build PyTorch wheel for gfx12-generic
+#═══════════════════════════════════════════════════════════════════════════════
+do_pytorch() {
+    log_step "PYTORCH BUILD"
+
+    if [ ! -f "$PYTORCH_DIR/build_prod_wheels.py" ]; then
+        log_error "PyTorch build script not found at $PYTORCH_DIR"
+        log_info "Clone pytorch external build first"
+        exit 1
+    fi
+
+    cd "$PYTORCH_DIR"
+
+    log_info "Building PyTorch wheel targeting $GPU_ARCH_GENERIC..."
+    python3 build_prod_wheels.py build \
+        --output-dir "$PYTORCH_DIR/wheels_out_gfx12" \
+        --no-build-pytorch-audio \
+        --no-build-pytorch-vision \
+        --no-build-triton \
+        --pytorch-rocm-arch "$GPU_ARCH_GENERIC" \
+        --clean
+
+    local whl=$(ls "$PYTORCH_DIR/wheels_out_gfx12/torch-"*.whl 2>/dev/null | head -1)
+    if [ -n "$whl" ]; then
+        log_ok "Wheel built: $(basename "$whl")"
+        log_info "Install with: pip install --no-deps --force-reinstall $whl"
+    else
+        log_error "No wheel produced"
+    fi
+
+    cd "$SCRIPT_DIR"
+}
+
+#═══════════════════════════════════════════════════════════════════════════════
+# LLAMA: Build llama.cpp for gfx1201
+#═══════════════════════════════════════════════════════════════════════════════
+do_llama() {
+    log_step "LLAMA.CPP BUILD"
+
+    local llama_dir="$SCRIPT_DIR/external-builds/llama.cpp"
+
+    if [ ! -d "$llama_dir" ]; then
+        log_info "Cloning llama.cpp..."
+        mkdir -p "$SCRIPT_DIR/external-builds"
+        git clone https://github.com/ggerganov/llama.cpp.git "$llama_dir"
+    fi
+
+    cd "$llama_dir"
+    log_info "Building llama.cpp for $GPU_ARCH..."
+
+    cmake -B build -GNinja \
+        -DCMAKE_BUILD_TYPE=Release \
+        -DCMAKE_C_FLAGS="-O3" \
+        -DCMAKE_CXX_FLAGS="-O3" \
+        -DGGML_HIP=ON \
+        -DAMDGPU_TARGETS="$GPU_ARCH" \
+        -DCMAKE_PREFIX_PATH="$ROCM_INSTALL"
+
+    ninja -C build -j$(nproc)
+
+    if [ -f build/bin/llama-server ]; then
+        log_ok "llama-server built"
+        log_info "Install: sudo cp build/bin/llama-server /usr/local/bin/"
+    fi
+
+    cd "$SCRIPT_DIR"
+}
+
+#═══════════════════════════════════════════════════════════════════════════════
+# TEST: Verification suite
+#═══════════════════════════════════════════════════════════════════════════════
 do_test() {
-    log_info "Running ROCm tests..."
+    log_step "VERIFICATION"
 
     source rocm_env.sh 2>/dev/null || true
 
-    echo ""
-    echo "═══════════════════════════════════════════════════════════════"
-    echo "                      GPU DETECTION                            "
-    echo "═══════════════════════════════════════════════════════════════"
-    /opt/rocm/bin/rocminfo 2>&1 | grep -E "Name:|Marketing Name:|Device Type:" | head -6
+    # GPU Detection
+    echo -e "\n${BOLD}GPU Detection${NC}"
+    echo "─────────────────────────────────────────"
+    rocminfo 2>&1 | grep -E "Name:|Marketing Name:|Device Type:" | head -6
 
-    echo ""
-    echo "═══════════════════════════════════════════════════════════════"
-    echo "                      HIP COMPUTE TEST                         "
-    echo "═══════════════════════════════════════════════════════════════"
-    cat > /tmp/hip_test.cpp << 'HIPEOF'
+    # HIP Compile + Run
+    echo -e "\n${BOLD}HIP Native Compile (gfx1201)${NC}"
+    echo "─────────────────────────────────────────"
+    cat > /tmp/_test_gfx12.hip << 'HIPEOF'
 #include <hip/hip_runtime.h>
 #include <stdio.h>
-__global__ void hello() { printf("Hello from GPU thread %d!\n", threadIdx.x); }
+__global__ void hello() { printf("  GPU thread %d says hello\n", threadIdx.x); }
 int main() {
-    int count;
-    hipGetDeviceCount(&count);
-    printf("Found %d GPU(s)\n", count);
-    hipDeviceProp_t props;
-    hipGetDeviceProperties(&props, 0);
-    printf("GPU 0: %s (arch: %s)\n", props.name, props.gcnArchName);
+    hipDeviceProp_t p;
+    hipGetDeviceProperties(&p, 0);
+    printf("  Device: %s (%s)\n", p.name, p.gcnArchName);
     hello<<<1, 4>>>();
     hipDeviceSynchronize();
-    printf("GPU compute test passed!\n");
+    printf("  HIP compute: PASS\n");
     return 0;
 }
 HIPEOF
-    /opt/rocm/bin/hipcc /tmp/hip_test.cpp -o /tmp/hip_test && /tmp/hip_test
+    hipcc --offload-arch=$GPU_ARCH /tmp/_test_gfx12.hip -o /tmp/_test_gfx12 && /tmp/_test_gfx12
+    rm -f /tmp/_test_gfx12 /tmp/_test_gfx12.hip
+
+    # Library Check
+    echo -e "\n${BOLD}Library Status${NC}"
+    echo "─────────────────────────────────────────"
+    for lib in amdhip64 hiprtc rocblas hipblaslt rocrand rocsolver rocsparse rocfft hipfft MIOpen rccl; do
+        if [ -f "$ROCM_INSTALL/lib/lib${lib}.so" ]; then
+            echo -e "  ${GREEN}✓${NC} $lib"
+        else
+            echo -e "  ${RED}✗${NC} $lib"
+        fi
+    done
+
+    # PyTorch
+    echo -e "\n${BOLD}PyTorch${NC}"
+    echo "─────────────────────────────────────────"
+    python3 -c "
+import torch
+print(f'  torch {torch.__version__}')
+print(f'  CUDA available: {torch.cuda.is_available()}')
+if torch.cuda.is_available():
+    print(f'  Device: {torch.cuda.get_device_name(0)}')
+    a = torch.randn(1024, 1024, device='cuda', dtype=torch.float16)
+    b = torch.randn(1024, 1024, device='cuda', dtype=torch.float16)
+    c = torch.mm(a, b)
+    torch.cuda.synchronize()
+    print(f'  FP16 matmul 1024: PASS')
+" 2>&1 || log_warn "PyTorch not installed or GPU unavailable"
+
+    # FFT Test
+    echo -e "\n${BOLD}FFT (rocFFT)${NC}"
+    echo "─────────────────────────────────────────"
+    python3 -c "
+import torch
+if torch.cuda.is_available():
+    x = torch.randn(4096, device='cuda')
+    y = torch.fft.fft(x)
+    torch.cuda.synchronize()
+    print(f'  torch.fft.fft(4096): PASS (output shape {y.shape})')
+else:
+    print('  GPU not available')
+" 2>&1 || log_warn "FFT test failed — rocFFT may not be built"
+
+    # Quick Benchmark
+    echo -e "\n${BOLD}Quick Benchmark${NC}"
+    echo "─────────────────────────────────────────"
+    python3 -c "
+import torch, time
+for dt, name in [(torch.float16,'FP16'),(torch.bfloat16,'BF16'),(torch.float32,'FP32')]:
+    a = torch.randn(4096, 4096, device='cuda', dtype=dt)
+    b = torch.randn(4096, 4096, device='cuda', dtype=dt)
+    torch.mm(a, b); torch.cuda.synchronize()
+    s = time.perf_counter()
+    for _ in range(20): torch.mm(a, b)
+    torch.cuda.synchronize()
+    e = (time.perf_counter() - s) / 20
+    t = 2 * 4096**3 / e / 1e12
+    print(f'  {name} 4096x4096: {t:.1f} TFLOPS  ({e*1000:.2f} ms)')
+" 2>&1 || log_warn "Benchmark failed"
 
     echo ""
-    echo "═══════════════════════════════════════════════════════════════"
-    echo "                      ROCRAND TESTS                            "
-    echo "═══════════════════════════════════════════════════════════════"
-    /opt/rocm/bin/test_rocrand_basic 2>&1 | tail -5
-
-    echo ""
-    echo "═══════════════════════════════════════════════════════════════"
-    echo "                      BENCHMARKS                               "
-    echo "═══════════════════════════════════════════════════════════════"
-    echo "hipBLASLt FP16 2048³:"
-    /opt/rocm/bin/hipblaslt-bench -f matmul -r f16_r -m 2048 -n 2048 -k 2048 --cold_iters 2 --iters 10 2>&1 | tail -2
-
-    echo ""
-    echo "hipBLASLt BF16 4096³:"
-    /opt/rocm/bin/hipblaslt-bench -f matmul -r bf16_r -m 4096 -n 4096 -k 4096 --cold_iters 2 --iters 10 2>&1 | tail -2
-
-    echo ""
-    echo "rocrand throughput:"
-    /opt/rocm/bin/benchmark_rocrand_generate --engine xorwow --size 1048576 --trials 10 2>&1 | tail -3
-
-    log_ok "Tests complete"
+    log_ok "Verification complete"
 }
 
-#───────────────────────────────────────────────────────────────────────────────
-# PUSH: Push changes to tlee933 fork
-#───────────────────────────────────────────────────────────────────────────────
-do_push() {
-    log_info "Pushing to tlee933 fork..."
+#═══════════════════════════════════════════════════════════════════════════════
+# STATUS: Show component status
+#═══════════════════════════════════════════════════════════════════════════════
+do_status() {
+    log_step "COMPONENT STATUS"
 
-    # Check for uncommitted changes
+    echo -e "${BOLD}ROCm Libraries${NC}"
+    echo "─────────────────────────────────────────"
+    for lib in amdhip64 hiprtc rocblas hipblaslt rocrand rocsolver rocsparse rocfft hipfft MIOpen rccl; do
+        if [ -f "$ROCM_DIST/lib/lib${lib}.so" ]; then
+            local ver=$(readelf -d "$ROCM_DIST/lib/lib${lib}.so" 2>/dev/null | grep SONAME | grep -oP '\.so\.\K[0-9.]+' || echo "")
+            echo -e "  ${GREEN}✓${NC} ${lib}${ver:+ ($ver)}"
+        else
+            echo -e "  ${RED}✗${NC} ${lib} (not built)"
+        fi
+    done
+
+    echo -e "\n${BOLD}Build Configuration${NC}"
+    echo "─────────────────────────────────────────"
+    if [ -f build/CMakeCache.txt ]; then
+        echo "  GPU target:   $(grep 'THEROCK_AMDGPU_FAMILIES:' build/CMakeCache.txt | cut -d= -f2)"
+        echo "  Build type:   $(grep 'CMAKE_BUILD_TYPE:' build/CMakeCache.txt | cut -d= -f2)"
+        echo "  FFT:          $(grep 'THEROCK_ENABLE_FFT:' build/CMakeCache.txt | cut -d= -f2)"
+        echo "  rocprofsys:   $(grep 'THEROCK_ENABLE_ROCPROFSYS:' build/CMakeCache.txt | cut -d= -f2)"
+    else
+        echo "  (not configured)"
+    fi
+
+    echo -e "\n${BOLD}Environment${NC}"
+    echo "─────────────────────────────────────────"
+    echo "  /opt/rocm:    $(readlink -f /opt/rocm 2>/dev/null || echo 'not set')"
+    echo "  hipcc:        $(which hipcc 2>/dev/null || echo 'not found')"
+    echo "  GCC:          $(gcc --version 2>/dev/null | head -1)"
+    echo "  Python:       $(python3 --version 2>/dev/null)"
+    echo "  PyTorch:      $(python3 -c 'import torch; print(torch.__version__)' 2>/dev/null || echo 'not installed')"
+
+    echo -e "\n${BOLD}Blocked Upstream${NC}"
+    echo "─────────────────────────────────────────"
+    echo "  rocprofiler-systems   dyninst CMAKE_CXX_FLAGS quoting (therock_subproject.cmake:1428)"
+    echo "  FBGEMM GenAI          CK Wave32 support missing (RDNA4), ETA H1 2026"
+    echo ""
+}
+
+#═══════════════════════════════════════════════════════════════════════════════
+# PUSH: Push to fork
+#═══════════════════════════════════════════════════════════════════════════════
+do_push() {
+    log_step "PUSH"
+
     if [ -n "$(git status --porcelain)" ]; then
-        log_warn "Uncommitted changes detected"
+        log_warn "Uncommitted changes:"
         git status --short
-        read -p "Commit these changes? [y/N] " -n 1 -r
+        read -p "Commit? [y/N] " -n 1 -r
         echo
         if [[ $REPLY =~ ^[Yy]$ ]]; then
             git add -A
-            git commit -m "Update GCC 15 fixes and test results
+            git commit -m "Update build script and ROCm status
 
 Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>"
         fi
@@ -364,16 +581,20 @@ Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>"
     log_ok "Pushed to fork"
 }
 
-#───────────────────────────────────────────────────────────────────────────────
+#═══════════════════════════════════════════════════════════════════════════════
 # MAIN
-#───────────────────────────────────────────────────────────────────────────────
+#═══════════════════════════════════════════════════════════════════════════════
 case "${1:-help}" in
     update)    do_update ;;
     fixes)     do_fixes ;;
     configure) do_configure ;;
-    build)     do_build "${2:-}" ;;
+    build)     do_build "${2:-}" "${3:-4}" ;;
     install)   do_install ;;
+    pip-libs)  do_pip_libs ;;
+    pytorch)   do_pytorch ;;
+    llama)     do_llama ;;
     test)      do_test ;;
+    status)    do_status ;;
     push)      do_push ;;
     all)
         do_update
@@ -381,34 +602,40 @@ case "${1:-help}" in
         do_configure
         do_build
         do_install
+        do_pip_libs
         do_test
-        do_push
         ;;
     *)
-        echo "═══════════════════════════════════════════════════════════════"
-        echo "  TheRock ROCm Build Script for gfx1201"
-        echo "═══════════════════════════════════════════════════════════════"
         echo ""
-        echo "Usage: $0 [command]"
+        echo -e "${BOLD}${CYAN}═══════════════════════════════════════════════════════════════${NC}"
+        echo -e "${BOLD}  TheRock ROCm Build — gfx1201 (RDNA 4)${NC}"
+        echo -e "${BOLD}${CYAN}═══════════════════════════════════════════════════════════════${NC}"
         echo ""
-        echo "Commands:"
-        echo "  update     Pull latest upstream and rebase"
-        echo "  fixes      Check/apply GCC 15 compatibility fixes"
-        echo "  configure  Configure optimized build"
-        echo "  build      Build ROCm (-j4, ~3-4 hours)"
-        echo "  install    Setup /opt/rocm and environment"
-        echo "  test       Run test suite and benchmarks"
-        echo "  push       Push to tlee933 fork"
-        echo "  all        Run full pipeline"
+        echo -e "  ${BOLD}Core Pipeline:${NC}"
+        echo -e "    update      ${DIM}Pull latest upstream and rebase${NC}"
+        echo -e "    fixes       ${DIM}Check/apply GCC 15 patches${NC}"
+        echo -e "    configure   ${DIM}Configure CMake build${NC}"
+        echo -e "    build       ${DIM}Build ROCm (-j4, ~3-4 hours)${NC}"
+        echo -e "    install     ${DIM}Setup /opt/rocm and environment${NC}"
         echo ""
-        echo "Quick start:"
-        echo "  $0 all"
+        echo -e "  ${BOLD}AI Stack:${NC}"
+        echo -e "    pip-libs    ${DIM}Install gfx120X ROCm packages (Tensile)${NC}"
+        echo -e "    pytorch     ${DIM}Build PyTorch 2.9.1 wheel${NC}"
+        echo -e "    llama       ${DIM}Build llama.cpp for gfx1201${NC}"
         echo ""
-        echo "Or step by step:"
-        echo "  $0 update && $0 fixes && $0 configure"
-        echo "  $0 build --background"
-        echo "  # wait 3-4 hours..."
-        echo "  $0 install && $0 test && $0 push"
+        echo -e "  ${BOLD}Utilities:${NC}"
+        echo -e "    test        ${DIM}Run verification suite${NC}"
+        echo -e "    status      ${DIM}Show component status${NC}"
+        echo -e "    push        ${DIM}Push to tlee933 fork${NC}"
+        echo -e "    all         ${DIM}Run full pipeline${NC}"
+        echo ""
+        echo -e "  ${BOLD}Quick start:${NC}"
+        echo -e "    $0 all"
+        echo ""
+        echo -e "  ${BOLD}Step by step:${NC}"
+        echo -e "    $0 update && $0 fixes && $0 configure"
+        echo -e "    $0 build --background"
+        echo -e "    $0 install && $0 pip-libs && $0 test"
         echo ""
         ;;
 esac
