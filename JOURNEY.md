@@ -23,10 +23,53 @@ hacks. **Native `gfx1201` from silicon to PyTorch.** 💎
 ```
 🔴 AMD Radeon AI PRO R9700 (RDNA 4)
 ├── Architecture:  gfx1201 — Wave32, 64 CUs
-├── VRAM:          16 GB GDDR6 (256-bit)
+├── GPU Die:       Navi 48 — 53.9B transistors, 357 mm²
+├── Process:       TSMC N4P (4nm FinFET)
+├── VRAM:          32 GB GDDR6 (256-bit)
 ├── Clocks:        Up to 3.0 GHz boost
 └── PCIe:          Gen 5 x16
 ```
+
+## 🏜️ The Silicon: Desert Meets Taiwan
+
+The heart of the R9700 is **Navi 48** — a 357 mm² monolithic slab of
+silicon packing **53.9 billion transistors**. That's denser than NVIDIA's
+GB203 (Blackwell) in a smaller die. It's manufactured on TSMC's **N4P**
+process node, the same 4nm family now running at **Fab 21 in Phoenix,
+Arizona** — TSMC's first American mega-fab.
+
+The story of this chip is the story of two deserts meeting.
+
+🌵 **Phoenix, Arizona.** The Sonoran Desert. 115°F summers. Saguaro
+cacti. Not exactly where you'd expect to find the most advanced
+semiconductor fabrication on Earth. But TSMC broke ground here, poured
+$65 billion into the Arizona dust, and stood up a fab that produces
+4nm silicon on American soil for the first time in history.
+
+🏔️ **Hsinchu, Taiwan.** The original home of TSMC, where Morris Chang
+built the foundry model that now manufactures the brains of every
+major tech company on the planet. For decades, cutting-edge chips were
+a transpacific flight away. Now the knowledge, the processes, the
+almost supernatural precision of EUV lithography — it's all been
+transplanted to the desert.
+
+Fab 21 Phase 1 entered mass production in early 2025. Apple's A16 was
+first. AMD is next — shifting high-performance chip production to
+Arizona. The N4P process that etches Navi 48's 53.9 billion transistors
+is running on the same node family. Whether *this specific* R9700
+rolled off an Arizona line or a Taiwanese one, the silicon doesn't
+care. The instructions are identical. The atoms are the same.
+
+But there's something poetic about it: **an AMD chip, designed in
+Santa Clara, potentially fabbed in the Arizona desert, running an
+open-source compute stack built from raw source code on a living room
+workstation.** No cloud. No data center. No NVIDIA tax. Just silicon,
+software, and stubbornness.
+
+The semiconductor supply chain used to be a 7,000-mile vulnerability.
+Now it's also a desert highway.
+
+🌵➡️🔴➡️🔥
 
 ## 🐧 The Platform
 
