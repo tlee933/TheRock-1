@@ -68,37 +68,40 @@ The **Radeon AI PRO R9700** punches above its weight class:
 ├──────────────────────┬─────────┬──────────────┬──────────────┬──────────────────┤
 │ GPU                  │  VRAM   │ Street Price │ Gen (t/s)*   │ Notes            │
 ├──────────────────────┼─────────┼──────────────┼──────────────┼──────────────────┤
+│ RTX 5080 ⭐ NEW      │  16 GB  │ $1,200       │ ~119-132     │ GDDR7, 960 GB/s  │
 │ RTX 4090             │  24 GB  │ $1,983+      │ ~150-190     │ Scalped to hell  │
 │ Radeon AI PRO R9700  │  32 GB  │ $1,329       │ ~158         │ ← YOU ARE HERE   │
 │ RTX 4080 SUPER       │  16 GB  │ $950-1,200   │ ~147-150     │ Half the VRAM    │
 │ RTX 3090             │  24 GB  │ $800-1,000   │ ~100-120     │ Used market only │
 └──────────────────────┴─────────┴──────────────┴──────────────┴──────────────────┘
-                              * 7B-20B Q4 models, varies by model
+                              * 7B-30B Q4 models, varies by model
                               Prices: Jan 2026 street / secondary market
 ```
 
 #### 💪 Where R9700 Wins
 
-| Advantage | Details |
-|:----------|:--------|
-| **32GB VRAM** | Run 30B+ models fully on GPU (4090 caps at ~24GB) |
-| **Open Source** | Full ROCm stack, no CUDA lock-in |
-| **Pro Features** | ECC memory option, ISV certifications coming |
-| **Price/VRAM** | $41.53/GB vs $82.63/GB (4090) |
-| **Power Efficiency** | 300W TDP vs 450W (RTX 4090) |
+| Advantage | vs RTX 5080 | vs RTX 4090 |
+|:----------|:------------|:------------|
+| **VRAM** | 32 GB vs **16 GB** (2x!) | 32 GB vs 24 GB |
+| **LLM tok/s** | 158 vs ~119-132 (**+20-33%**) | 158 vs ~150-190 (competitive) |
+| **30B+ models** | ✅ Fits vs ❌ Won't fit | ✅ Fits vs ⚠️ Tight |
+| **Price/VRAM** | $41.53/GB vs $75/GB | $41.53/GB vs $82.63/GB |
+| **Open Source** | Full ROCm stack | No CUDA lock-in |
+| **Power** | 300W vs 360W | 300W vs 450W |
 
 #### 📊 Real Numbers (This Build)
 
-| Model | R9700 (ROCm) | RTX 4090 (CUDA)* | Delta |
-|:------|:------------:|:----------------:|:-----:|
-| 14B Q4_K_M | 50.6 t/s | ~65-70 t/s | -22% |
-| 30B MoE Q4_K_M | **158 t/s** | ~140-150 t/s | **+8% 🏆** |
-| 30B+ models | ✅ Fits in VRAM | ⚠️ Needs offload | **Win** |
-| PyTorch FP16 GEMM | **124.89 TFLOPS** | ~160 TFLOPS | -22% |
+| Model | R9700 (ROCm) | RTX 5080 (CUDA)* | RTX 4090 (CUDA)* | R9700 vs 5080 |
+|:------|:------------:|:----------------:|:----------------:|:-------------:|
+| 8B Q4_K_M | ~80 t/s | ~119-132 t/s | ~150-190 t/s | -33% |
+| 14B Q4_K_M | 50.6 t/s | ~65 t/s | ~65-70 t/s | -22% |
+| 30B MoE Q4_K_M | **158 t/s** 🔥 | ❌ Won't fit (16 GB) | ~140-150 t/s | **Win 🏆** |
+| 30B+ models | ✅ Fits (32 GB) | ❌ Won't fit (16 GB) | ⚠️ Tight (24 GB) | **Win 🏆** |
+| PyTorch FP16 GEMM | **124.89 TFLOPS** | ~200 TFLOPS | ~160 TFLOPS | -37% |
 
-> *NVIDIA numbers from [community benchmarks](https://www.hardware-corner.net/gpu-ranking-local-llm/) and [Puget Systems](https://www.pugetsystems.com/labs/articles/llm-inference-consumer-gpu-performance/)
+> *NVIDIA numbers from [community benchmarks](https://www.hardware-corner.net/gpu-ranking-local-llm/), [Puget Systems](https://www.pugetsystems.com/labs/articles/nvidia-geforce-rtx-5090-amp-5080-ai-review/), and [llama.cpp discussions](https://github.com/ggml-org/llama.cpp/discussions/15013)
 
-**Bottom Line:** The R9700 trades ~15-20% raw speed for 33% more VRAM and open-source freedom. For running larger models without CPU offload, it's arguably the better choice.
+**Bottom Line:** The RTX 5080 is faster on small models that fit in 16 GB — but it *literally cannot run* 30B+ models that the R9700 handles at 158 tok/s. **VRAM is king for LLMs.** The R9700 offers 2x the memory at a similar price point, with open-source freedom and no CUDA lock-in.
 
 ---
 
