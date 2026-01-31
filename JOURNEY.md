@@ -1,14 +1,14 @@
 # The RDNA 4 Journey: Bleeding Edge ROCm on gfx1201
 
-> **Building the impossible.** A from-scratch ROCm stack on hardware that
-> doesn't officially exist yet, running on an OS that ships GCC 15 and
+> **Building the impossible.** A from-scratch ROCm stack on AMD's latest
+> released RDNA 4 silicon, running on an OS that ships GCC 15 and
 > Python 3.14 — because someone has to go first.
 
 ---
 
 ## The Mission
 
-Take a **brand-new AMD Radeon AI PRO R9700** (RDNA 4, `gfx1201`) — a GPU
+Take AMD's **latest released Radeon AI PRO R9700** (RDNA 4, `gfx1201`) — a GPU
 with zero upstream ROCm support — and build a fully functional AI/HPC
 compute stack from raw source code on **Fedora Atomic 43**, the bleeding
 edge of immutable Linux.
