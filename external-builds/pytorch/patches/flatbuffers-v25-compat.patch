@@ -1,0 +1,34 @@
+--- a/torch/csrc/jit/serialization/mobile_bytecode_generated.h
++++ b/torch/csrc/jit/serialization/mobile_bytecode_generated.h
+@@ -8,9 +8,9 @@
+
+ // Ensure the included flatbuffers.h is the same version as when this file was
+ // generated, otherwise it may not be compatible.
+-static_assert(FLATBUFFERS_VERSION_MAJOR == 24 &&
+-              FLATBUFFERS_VERSION_MINOR == 12 &&
++static_assert(FLATBUFFERS_VERSION_MAJOR == 25 &&
++              FLATBUFFERS_VERSION_MINOR == 9 &&
+               FLATBUFFERS_VERSION_REVISION == 23,
+              "Non-compatible flatbuffers version included");
+
+--- a/torch/include/torch/csrc/jit/serialization/mobile_bytecode_generated.h
++++ b/torch/include/torch/csrc/jit/serialization/mobile_bytecode_generated.h
+@@ -8,9 +8,9 @@
+
+ // Ensure the included flatbuffers.h is the same version as when this file was
+ // generated, otherwise it may not be compatible.
+-static_assert(FLATBUFFERS_VERSION_MAJOR == 24 &&
+-              FLATBUFFERS_VERSION_MINOR == 12 &&
++static_assert(FLATBUFFERS_VERSION_MAJOR == 25 &&
++              FLATBUFFERS_VERSION_MINOR == 9 &&
+               FLATBUFFERS_VERSION_REVISION == 23,
+              "Non-compatible flatbuffers version included");
+
+--- a/third_party/flatbuffers/include/flatbuffers/base.h
++++ b/third_party/flatbuffers/include/flatbuffers/base.h
+@@ -1,7 +1,7 @@
+-#define FLATBUFFERS_VERSION_MAJOR 24
+-#define FLATBUFFERS_VERSION_MINOR 12
++#define FLATBUFFERS_VERSION_MAJOR 25
++#define FLATBUFFERS_VERSION_MINOR 9
+ #define FLATBUFFERS_VERSION_REVISION 23

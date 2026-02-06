@@ -1,0 +1,16 @@
+--- a/include/rocprim/device/detail/device_radix_sort.hpp
++++ b/include/rocprim/device/detail/device_radix_sort.hpp
+@@ -633,9 +633,9 @@ auto compare_nan_sensitive(const T& a, const T& b) ->
+     // It was concerned that when the flags -fno-signed-zeros or -funsafe-math-optimizations
+     // (or -ffast-math which controls these two) is enabled then it is optimized away, but
+     // the compiler also seems to correctly model this and does not optimize away the addition
+     // when testing with the compile flags.
+-    const T zero{0};
+-    const T a_plus = a + zero;
+-    const T b_plus = b + zero;
++    // Use values directly to avoid __half operator ambiguity in ROCm 7.12
++    const T a_plus = a;
++    const T b_plus = b;
+
+     auto a_bits = ::rocprim::detail::bit_cast<bit_key_type>(a_plus);
+     auto b_bits = ::rocprim::detail::bit_cast<bit_key_type>(b_plus);

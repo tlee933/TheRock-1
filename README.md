@@ -218,6 +218,69 @@ The patch is automatically applied by `fetch_sources.py`.
 
 ---
 
+## PyTorch 2.9.1 for ROCm 7.12 + gfx1201
+
+**NEW:** Successfully built PyTorch 2.9.1 from source with full ROCm 7.12 compatibility and gfx1201 optimizations!
+
+### What We Built
+
+A production-ready PyTorch wheel addressing critical compatibility gaps between PyTorch 2.9.1 and our ROCm 7.12 build:
+
+- ✅ **Flash Attention** enabled for transformer acceleration
+- ✅ **FBGEMM GenAI** for optimized inference operations
+- ✅ **FP16 support** with proper half-precision operators
+- ✅ **32 GB VRAM** - Excellent headroom for large model training
+
+### The Journey
+
+Building PyTorch for bleeding-edge ROCm required solving three major compatibility challenges:
+
+1. **Flatbuffers version alignment** - Updated v24 → v25 across 3 source locations
+2. **rocprim `__half` operators** - Fixed ambiguous half-precision arithmetic in radix sort
+3. **libdrm headers** - Linked against TheRock build artifacts
+
+The complete story, including the 24,249 compilation steps across three build attempts, is documented in **[external-builds/pytorch/JOURNEY.md](external-builds/pytorch/JOURNEY.md)**.
+
+### Validation
+
+Tested and proven with LoRA fine-tuning on AMD Radeon AI PRO R9700:
+
+```bash
+Model: Qwen2.5-0.5B (498M parameters)
+Dataset: 1,500 synthetic examples
+Training: 3 epochs in 9 minutes
+Throughput: 8.23 samples/sec, 1.03 steps/sec
+Final loss: 0.3367
+Stability: Zero HIP errors ✓
+```
+
+Previous PyTorch builds (ROCm 7.11) crashed at step 3 with illegal memory access. This build runs clean from start to finish.
+
+### Quick Start
+
+```bash
+# Build PyTorch
+cd external-builds/pytorch
+./build_pytorch_gfx1201.sh
+
+# Install
+python3 -m pip install --force-reinstall wheels/torch-2.9.1-cp314-cp314-linux_x86_64.whl
+
+# Verify
+python3 -c "import torch; print(f'PyTorch {torch.__version__}')"
+python3 -c "import torch; print(f'ROCm: {torch.cuda.get_device_name(0)}')"
+```
+
+### Documentation
+
+- **[JOURNEY.md](external-builds/pytorch/JOURNEY.md)** - The complete build story
+- **[PYTORCH_README.md](external-builds/pytorch/PYTORCH_README.md)** - Technical details and troubleshooting
+- **[patches/](external-builds/pytorch/patches/)** - All compatibility patches
+
+The PyTorch build integrates seamlessly with TheRock's ROCm 7.12 ecosystem, leveraging device libraries, headers, and optimizations from this custom build.
+
+---
+
 ## Development Manuals
 
 - [FAQ](docs/faq.md): Frequently asked questions
