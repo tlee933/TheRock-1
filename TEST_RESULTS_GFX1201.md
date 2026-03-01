@@ -248,17 +248,30 @@ GPU compute test passed!
 
 ---
 
-### 🤖 LLM Inference Benchmarks (llama.cpp)
+### 🤖 LLM Inference Benchmarks (llama.cpp b7751, native gfx1201 HIP)
 
-| Model | Size | Params | Prompt (t/s) | Generate (t/s) | Status |
-|:------|:----:|:------:|:------------:|:--------------:|:------:|
-| **Qwen3-30B-A3B** Q4_K_M | 17.3 GB | 30.5B (3B active) | **463** | **158** 🔥 | 🟢 |
-| **Qwen3-14B** Q4_K_M | 8.4 GB | 14.8B | **417.5** | **50.6** | 🟢 |
-| **Qwen3-30B-A3B** Q4_K_M (prev) | 17.3 GB | 30.5B | **335.4** | **83.7** | 🟢 |
-| **GPT-OSS-20B** MXFP4 | 11.3 GB | 20.9B | **624.5** | **123.5** | 🟢 |
+#### Full Model Suite (llama-bench, pp512/tg128, ngl=99)
 
-> 🔥 **158 tok/s** on Qwen3-30B MoE — latest llama.cpp with optimized RDNA 4 dispatch
-> Tested with llama.cpp, 512 token prompt, 128 token generation
+| Model | Size | Params | Quant | pp512 (t/s) | tg128 (t/s) | Status |
+|:------|:----:|:------:|:-----:|:-----------:|:-----------:|:------:|
+| Llama 3.2 1B Instruct | 1.23 GB | 1.24B | Q8_0 | **12,316** | **231.0** | 🟢 |
+| Qwen3-4B Instruct 2507 | 2.53 GB | 4.02B | Q4_K_M | **5,481** | **115.0** | 🟢 |
+| Qwen2.5-Coder-7B Instruct | 4.68 GB | 7.61B | Q4_K_M | **3,789** | **97.5** | 🟢 |
+| Qwen3-8B | 4.92 GB | 8.19B | Q4_K_M | **3,600** | **80.2** | 🟢 |
+| Phi-4 Reasoning Plus | 8.44 GB | 14.7B | Q4_K_M | **2,025** | **53.3** | 🟢 |
+| Qwen3-14B | 8.38 GB | 14.77B | Q4_K_M | **2,054** | **53.4** | 🟢 |
+| **Qwen3-30B-A3B** (MoE) | 17.28 GB | 30.53B | Q4_K_M | **349** | **77.3** | 🟢 |
+
+#### Flash Attention Results (fa=1)
+
+| Model | pp512 (t/s) | tg128 (t/s) | pp512 Speedup |
+|:------|:-----------:|:-----------:|:-------------:|
+| Qwen3-14B Q4_K_M | **2,038** | **53.2** | 1.0x |
+| **Qwen3-30B-A3B** Q4_K_M | **2,865** 🔥 | **89.3** 🔥 | **8.2x** |
+
+> 🔥 Flash attention delivers **8.2x prompt speedup** on the MoE model
+> At 89.3 tok/s generation, the 30B MoE is *faster* than the dense 8B model
+> Tested with llama-bench, 512 token prompt, 128 token generation, full GPU offload
 
 ---
 
