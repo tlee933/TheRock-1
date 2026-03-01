@@ -35,11 +35,8 @@
 #    ✓ rocFFT / hipFFT              Built from source (runtime-compiled kernels)
 #    ✓ PyTorch 2.9.1                124.89 TFLOPS FP16 · gfx12-generic wheel
 #    ✓ Triton 3.6                   JIT targeting gfx1201
+#    ✓ rocprofiler-systems          Built from source (dyninst flags fix)
 #    ✓ llama.cpp                    83 tok/s Qwen3-30B MoE · native gfx1201
-#
-#  Disabled:
-#    ✗ rocprofiler-systems          dyninst CMAKE_CXX_FLAGS quoting bug
-#                                   (therock_subproject.cmake:1428)
 #
 #  Blocked upstream:
 #    ✗ FBGEMM GenAI                 CK needs Wave64, RDNA4 is Wave32 (ETA H1 2026)
@@ -197,10 +194,20 @@ do_fixes() {
         "rocgdb/CMakeLists.txt (skip PDF docs)" \
         "sed -i 's/\${MAKE_EXECUTABLE} -s -C gdb install-pdf install-html/# Skipped: \${MAKE_EXECUTABLE} -s -C gdb install-pdf install-html/' \"\$file\""
 
-    # Fix 10: libhipcxx atomic_codegen symlink
-    local link10="math-libs/libhipcxx/test/atomic_codegen"
+    # Fix 10: DyninstOptimization.cmake — CMAKE_CXX_FLAGS quoting bug
+    # When CMAKE_CXX_FLAGS contains spaces (e.g. "-O3 -march=native"),
+    # dyninst treats it as a single list element, producing a literal
+    # "-O3 -march=native" arg that GCC rejects. Fix: separate_arguments().
+    apply_fix \
+        "rocm-systems/projects/rocprofiler-systems/external/dyninst/cmake/DyninstOptimization.cmake" \
+        "separate_arguments" \
+        "DyninstOptimization.cmake (flags quoting)" \
+        "sed -i '/^string(TOUPPER.*_build_type)/a separate_arguments(_user_c_flags NATIVE_COMMAND \"\$\{CMAKE_C_FLAGS\}\")\nseparate_arguments(_user_cxx_flags NATIVE_COMMAND \"\$\{CMAKE_CXX_FLAGS\}\")' \"\$file\" && sed -i 's/set(DYNINST_C_FLAGS_\${_build_type} \${_\${_build_type}} \${CMAKE_C_FLAGS})/set(DYNINST_C_FLAGS_\${_build_type} \${_\${_build_type}} \${_user_c_flags})/' \"\$file\" && sed -i 's/\${CMAKE_CXX_FLAGS})/\${_user_cxx_flags})/' \"\$file\""
+
+    # Fix 11: libhipcxx atomic_codegen symlink
+    local link11="math-libs/libhipcxx/test/atomic_codegen"
     total=$((total + 1))
-    if [ -L "$link10" ] && [ -e "$link10" ]; then
+    if [ -L "$link11" ] && [ -e "$link11" ]; then
         echo -e "  ${DIM}✓ libhipcxx/test/atomic_codegen symlink${NC}"
     else
         log_info "Applying: libhipcxx atomic_codegen symlink"
@@ -234,7 +241,7 @@ do_configure() {
         -DCMAKE_CXX_FLAGS="-O3 -march=native" \
         -DTHEROCK_ENABLE_FFT=ON \
         -DTHEROCK_ENABLE_FFTW3=ON \
-        -DTHEROCK_ENABLE_ROCPROFSYS=OFF
+        -DTHEROCK_ENABLE_ROCPROFSYS=ON
 
     log_ok "Configuration complete"
 }
@@ -553,7 +560,6 @@ do_status() {
 
     echo -e "\n${BOLD}Blocked Upstream${NC}"
     echo "─────────────────────────────────────────"
-    echo "  rocprofiler-systems   dyninst CMAKE_CXX_FLAGS quoting (therock_subproject.cmake:1428)"
     echo "  FBGEMM GenAI          CK Wave32 support missing (RDNA4), ETA H1 2026"
     echo ""
 }
