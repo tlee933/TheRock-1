@@ -1,12 +1,12 @@
 #!/bin/bash
 set -e
 
-# PyTorch 2.10.0 Build Script for ROCm 7.12 + gfx1201
+# PyTorch 2.10.0 Build Script for ROCm 7.12.1-hashcat + gfx1201
 # Part of TheRock custom ROCm build ecosystem
 # Builds PyTorch with Flash Attention and FBGEMM optimizations
 
 echo "=========================================="
-echo "PyTorch 2.10.0 Build for ROCm 7.12 + gfx1201"
+echo "PyTorch 2.10.0 Build for ROCm 7.12.1-hashcat + gfx1201"
 echo "=========================================="
 echo ""
 
@@ -118,7 +118,7 @@ export USE_ROCM=1
 export PYTORCH_ROCM_ARCH=gfx1201
 export USE_FLASH_ATTENTION=1
 export USE_FBGEMM_GENAI=ON
-export PYTORCH_BUILD_VERSION=2.10.0+rocm7.12.0a20260214
+export PYTORCH_BUILD_VERSION=2.10.0+rocm7.12.1-hashcat
 export PYTORCH_BUILD_NUMBER=1
 export CMAKE_PREFIX_PATH="$ROCM_PATH"
 

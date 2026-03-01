@@ -14,7 +14,7 @@
 #    build       Build ROCm from source (~3-4 hours with -j4)
 #    install     Setup /opt/rocm symlink and environment
 #    pip-libs    Install gfx120X ROCm pip packages (Tensile kernels)
-#    pytorch     Build PyTorch 2.9.1 wheel for gfx12-generic
+#    pytorch     Build PyTorch 2.10.0 wheel for gfx12-generic
 #    llama       Build llama.cpp for gfx1201
 #    test        Run verification suite
 #    push        Push to tlee933 fork
@@ -23,7 +23,7 @@
 #
 #═══════════════════════════════════════════════════════════════════════════════
 #
-#  STATUS — January 2026
+#  STATUS — March 2026 · rocm7.12.1-hashcat
 #
 #  Working:
 #    ✓ HIP runtime / hipcc         Native gfx1201, no HSA_OVERRIDE needed
@@ -33,10 +33,11 @@
 #    ✓ MIOpen / Composable Kernel   Built from source
 #    ✓ RCCL                         Multi-GPU comms
 #    ✓ rocFFT / hipFFT              Built from source (runtime-compiled kernels)
-#    ✓ PyTorch 2.9.1                124.89 TFLOPS FP16 · gfx12-generic wheel
+#    ✓ PyTorch 2.10.0               125 TFLOPS FP16 · gfx12-generic wheel
 #    ✓ Triton 3.6                   JIT targeting gfx1201
 #    ✓ rocprofiler-systems          Built from source (dyninst flags fix)
 #    ✓ llama.cpp                    83 tok/s Qwen3-30B MoE · native gfx1201
+#    ✓ bitsandbytes                 4-bit/8-bit quantization · gfx1201
 #
 #  Blocked upstream:
 #    ✗ FBGEMM GenAI                 CK needs Wave64, RDNA4 is Wave32 (ETA H1 2026)
